@@ -38,8 +38,8 @@ LIBS			= $(LIBDIR)/libft/bin/libft.a libmlx.dylib
 endif
 
 HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h')
-include sources.mk
-OBJ	= $(foreach src,$(SRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
+SRC				= $(shell find $(SRCDIR) -type f -name '*.c')
+OBJ				= $(foreach src,$(SRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
 
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
@@ -48,24 +48,8 @@ TESTRT			= rt/standard.rt
 VPATH = $(shell find $(SRCDIR) -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
 all:
-ifneq ($(shell grep $(SETTINGS) -e '\# define BONUS.*'),\# define BONUS 0)
-ifeq ($(shell uname),Linux)
-	sed -i 's/# define BONUS.*/# define BONUS 0/' $(SETTINGS)
-else
-	sed -i '' 's/# define BONUS.*/# define BONUS 0/' $(SETTINGS)
-endif
-endif
-	make -j4 $(NAME)
+	make -j14 $(NAME)
 
-bonus:
-ifneq ($(shell grep $(SETTINGS) -e '\# define BONUS.*'),\# define BONUS 1)
-ifeq ($(shell uname),Linux)
-	sed -i 's/# define BONUS.*/# define BONUS 1/' $(SETTINGS)
-else
-	sed -i '' 's/# define BONUS.*/# define BONUS 1/' $(SETTINGS)
-endif
-endif
-	make -j4 $(NAME)
 
 $(NAME): $(BUILDDIR)/ $(OBJ) $(HEADERS) $(LIBS) $(SETTINGS)
 	$(CC) $(CFLAGS) -I$(HEADERDIR) $(BUILDDIR)/*.$(OBJEXT) -o $(NAME) \
@@ -110,30 +94,24 @@ re:
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)
 
-findsources:
-	echo "# SRC = find src/ -name \"\*.c\" -exec echo \"\{\} \\\\\" \\\;" \
-> sources.mk
-	echo "SRC = \\" >> sources.mk
-	find src/ -name "*.c" -exec echo "{} \\" \; >> sources.mk
-
 silent:
-	@$(MAKE) bonus > /dev/null
+	@$(MAKE) all > /dev/null
 
 standard:
-	@$(MAKE) bonus > /dev/null
+	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@while inotifywait -qq -e close_write $(TESTRT); do \
-$(MAKE) bonus > /dev/null && ./$(NAME) $(TESTRT) --save; done
+$(MAKE) all > /dev/null && ./$(NAME) $(TESTRT) --save; done
 
 rt:
-	@$(MAKE) bonus > /dev/null
+	@$(MAKE) all > /dev/null
 	@find rt/ -name "*.rt" -exec echo {} \; \
 -exec ./$(NAME) {} --save \; \
 -exec mv scene.bmp {}.bmp \; \
 -exec echo "" \;
 
 rttest:
-	@$(MAKE) bonus > /dev/null
+	@$(MAKE) all > /dev/null
 	@find rt_test/ -name "*.rt" -exec echo {} \; \
 -exec ./$(NAME) {} --save \; \
 -exec mv scene.bmp {}.bmp \; \
