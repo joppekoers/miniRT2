@@ -16,10 +16,10 @@
 #include <math.h>
 #include "quadratic.h"
 
-t_vec3	cylinder_normal(t_vec3 hitpoint, t_ray ray, t_cylinder cylinder)
+t_vec3 cylinder_normal(t_vec3 hitpoint, t_ray ray, t_cylinder cylinder)
 {
-	t_vec3	ctp;
-	t_vec3	normal;
+	t_vec3 ctp;
+	t_vec3 normal;
 
 	ctp = subtract(hitpoint, cylinder.origin);
 	normal = subtract(ctp, scale(cylinder.dir, dot(cylinder.dir, ctp)));
@@ -30,10 +30,10 @@ t_vec3	cylinder_normal(t_vec3 hitpoint, t_ray ray, t_cylinder cylinder)
 // WARNING!
 // Starting from this point, the code is shit because it wasn't written by me
 
-void	check_t(double *t, t_cylinder cylinder, t_ray ray)
+void check_t(double* t, t_cylinder cylinder, t_ray ray)
 {
-	t_vec3	q;
-	t_vec3	p2;
+	t_vec3 q;
+	t_vec3 p2;
 
 	p2 = add(cylinder.origin, scale(cylinder.dir, cylinder.height));
 	q = add(ray.origin, scale(ray.dir, *t));
@@ -43,18 +43,18 @@ void	check_t(double *t, t_cylinder cylinder, t_ray ray)
 		*t = -1;
 }
 
-int	cyl_get_roots(double *t0, double *t1, t_cylinder cylinder, t_ray ray)
+int cyl_get_roots(double* t0, double* t1, t_cylinder cylinder, t_ray ray)
 {
-	t_vec3	a_sqrt;
-	t_vec3	right;
-	double	a;
-	double	b;
-	double	c;
+	t_vec3 a_sqrt;
+	t_vec3 right;
+	double a;
+	double b;
+	double c;
 
 	a_sqrt = subtract(ray.dir, scale(cylinder.dir, dot(ray.dir, cylinder.dir)));
 	a = dot(a_sqrt, a_sqrt);
-	right = subtract(subtract(ray.origin, cylinder.origin), scale(cylinder.dir,
-				dot(subtract(ray.origin, cylinder.origin), cylinder.dir)));
+	right = subtract(subtract(ray.origin, cylinder.origin),
+			scale(cylinder.dir, dot(subtract(ray.origin, cylinder.origin), cylinder.dir)));
 	b = 2 * dot(a_sqrt, right);
 	c = dot(right, right) - (cylinder.radius * cylinder.radius);
 	if (!solve_quadratic((t_quadratic){a, b, c}, t0, t1))
@@ -62,10 +62,10 @@ int	cyl_get_roots(double *t0, double *t1, t_cylinder cylinder, t_ray ray)
 	return (1);
 }
 
-int	intersect_cylinder(t_ray ray, t_cylinder cylinder, double *t)
+int intersect_cylinder(t_ray ray, t_cylinder cylinder, double* t)
 {
-	double	t0;
-	double	t1;
+	double t0;
+	double t1;
 
 	if (!cyl_get_roots(&t0, &t1, cylinder, ray))
 		return (0);
@@ -82,9 +82,9 @@ int	intersect_cylinder(t_ray ray, t_cylinder cylinder, double *t)
 	return (1);
 }
 
-t_hit	hit_cylinder(t_pos pos, t_ray ray)
+t_hit hit_cylinder(t_pos pos, t_ray ray)
 {
-	t_hit	hit;
+	t_hit hit;
 
 	hit.hit = intersect_cylinder(ray, pos.cy, &hit.dist);
 	if (!hit.hit)

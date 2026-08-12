@@ -17,10 +17,10 @@
 #include <stdlib.h>
 #include <limits.h>
 
-void	add_camera(t_gui *gui, char *line)
+void add_camera(t_gui* gui, char* line)
 {
-	char		**items;
-	t_camera	*cam;
+	char**	  items;
+	t_camera* cam;
 
 	cam = calloc_safe(sizeof(t_camera));
 	items = split_clamp(line, 4);
@@ -35,10 +35,10 @@ void	add_camera(t_gui *gui, char *line)
 		ft_memcpy(&gui->camera, cam, sizeof(t_camera));
 }
 
-void	add_light(t_arr **lights, char *line)
+void add_light(t_arr** lights, char* line)
 {
-	char	**items;
-	t_light	*light;
+	char**	 items;
+	t_light* light;
 
 	light = malloc_safe(sizeof(t_light));
 	items = split_clamp(line, 4);
@@ -50,9 +50,9 @@ void	add_light(t_arr **lights, char *line)
 		exit_e("malloc");
 }
 
-void	set_resolution(t_gui *gui, char *line)
+void set_resolution(t_gui* gui, char* line)
 {
-	char	**items;
+	char** items;
 
 	items = split_clamp(line, 3);
 	gui->x_size = (unsigned)strtonum_clamp(items[1], '\0', 1, LONG_MAX);
@@ -60,9 +60,9 @@ void	set_resolution(t_gui *gui, char *line)
 	ft_free_until_null_char(items);
 }
 
-void	set_ambient(t_ambient *ambient, char *line)
+void set_ambient(t_ambient* ambient, char* line)
 {
-	char	**items;
+	char** items;
 
 	items = split_clamp(line, 3);
 	ambient->brightness = strtodbl_clamp(items[1], '\0', 0.0, 1.0);

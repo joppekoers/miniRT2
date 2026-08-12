@@ -50,9 +50,9 @@
 // @param x		x-coordinate of pixel to point the ray to
 // @param y		y-coordinate of pixel to point the ray to
 
-t_ray	ray_from_pix(double x, double y, const t_gui *gui)
+t_ray ray_from_pix(double x, double y, const t_gui* gui)
 {
-	t_ray_from_pix	n;
+	t_ray_from_pix n;
 
 	n.fov = tan(gui->camera.fov * 0.5);
 	n.aspect_ratio = (double)gui->x_size / (double)gui->y_size;

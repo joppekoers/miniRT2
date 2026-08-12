@@ -14,12 +14,12 @@
 #include "constants.h"
 #include "vector.h"
 
-t_hit	hit_plane(t_pos pos, t_ray ray)
+t_hit hit_plane(t_pos pos, t_ray ray)
 {
-	double	denom;
-	double	t;
-	t_vec3	p0l0;
-	t_hit	hit;
+	double denom;
+	double t;
+	t_vec3 p0l0;
+	t_hit  hit;
 
 	denom = dot(pos.pl.normal, ray.dir);
 	p0l0 = subtract(pos.pl.origin, ray.origin);

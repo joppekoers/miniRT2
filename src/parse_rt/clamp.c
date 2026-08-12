@@ -15,10 +15,10 @@
 #include "../lib/libft/include/libft.h"
 #include <stdlib.h>
 
-long	strtonum_clamp(char *str, char end, long min, long max)
+long strtonum_clamp(char* str, char end, long min, long max)
 {
-	size_t	i;
-	long	num;
+	size_t i;
+	long   num;
 
 	if (str[0] == '\0')
 		exit_char(str[0], '\0');
@@ -33,10 +33,10 @@ long	strtonum_clamp(char *str, char end, long min, long max)
 	return (num);
 }
 
-double	strtodbl_clamp(char *str, char end, double min, double max)
+double strtodbl_clamp(char* str, char end, double min, double max)
 {
-	size_t	i;
-	double	num;
+	size_t i;
+	double num;
 
 	if (str[0] == '\0')
 		exit_char(str[0], '\0');
@@ -55,10 +55,10 @@ double	strtodbl_clamp(char *str, char end, double min, double max)
 	return (num);
 }
 
-char	**split_clamp(char *line, size_t should_be_n)
+char** split_clamp(char* line, size_t should_be_n)
 {
-	size_t	n_params;
-	char	**params;
+	size_t n_params;
+	char** params;
 
 	params = ft_split_length(line, ' ', &n_params);
 	if (params == NULL)

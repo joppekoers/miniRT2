@@ -23,11 +23,11 @@
 // 1 open X11 window and switch between cameras
 // 2 export render to bmp
 
-int	main(int argc, const char *argv[])
+int main(int argc, const char* argv[])
 {
-	t_gui	gui;
+	t_gui gui;
 
-	if (argc == 3 && ft_strcmp((char *)argv[2], "--save") == 0)
+	if (argc == 3 && ft_strcmp((char*)argv[2], "--save") == 0)
 	{
 		gui_init(&gui, argv[1], false);
 		render(&gui);

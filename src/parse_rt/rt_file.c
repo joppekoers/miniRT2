@@ -15,11 +15,11 @@
 #include "../lib/libft/include/libft.h"
 #include <stdio.h>
 
-void	log_shapes(const t_arr *shapes)
+void log_shapes(const t_arr* shapes)
 {
-	t_obj			*obj;
-	size_t			i;
-	unsigned int	shape_n[SHAPE_LAST];
+	t_obj*		 obj;
+	size_t		 i;
+	unsigned int shape_n[SHAPE_LAST];
 
 	i = 0;
 	ft_bzero(shape_n, sizeof(shape_n));
@@ -39,12 +39,12 @@ void	log_shapes(const t_arr *shapes)
 	}
 }
 
-bool	is_rule(char *line, t_rule rule)
+bool is_rule(char* line, t_rule rule)
 {
 	return (ft_strcmp(line, rule_id(rule)) == ' ');
 }
 
-static void	parse_rt_line(char *line, t_gui *gui)
+static void parse_rt_line(char* line, t_gui* gui)
 {
 	if (line[0] == '\0' || (ALLOW_RT_COMMENTS && line[0] == '#'))
 		;
@@ -70,20 +70,20 @@ static void	parse_rt_line(char *line, t_gui *gui)
 		exit_e("Unknown rule");
 }
 
-static void	exit_invalid_filename(const char *filename)
+static void exit_invalid_filename(const char* filename)
 {
-	size_t	len;
+	size_t len;
 
-	len = ft_strlen((char *)filename);
-	if (len < 3 || ft_strcmp((char *)&filename[len - 3], ".rt") != 0)
+	len = ft_strlen((char*)filename);
+	if (len < 3 || ft_strcmp((char*)&filename[len - 3], ".rt") != 0)
 		exit_e("Rt file should end with .rt\n");
 }
 
-void	parse_rt(t_gui *gui, const char *rt_filename)
+void parse_rt(t_gui* gui, const char* rt_filename)
 {
-	size_t		rt_lines;
-	char		**rt;
-	size_t		i;
+	size_t rt_lines;
+	char** rt;
+	size_t i;
 
 	rt = ft_split_file(rt_filename, &rt_lines);
 	exit_invalid_filename(rt_filename);

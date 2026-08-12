@@ -11,17 +11,17 @@
 /* ************************************************************************** */
 
 #ifndef QUADRATIC_H
-# define QUADRATIC_H
-# include <stdbool.h>
+#define QUADRATIC_H
+#include <stdbool.h>
 
 typedef struct s_qparams
 {
-	double	a;
-	double	b;
-	double	c;
-}				t_quadratic;
+	double a;
+	double b;
+	double c;
+} t_quadratic;
 
-bool			solve_quadratic(t_quadratic params, double *x0, double *x1);
-void			swapf(double *a, double *b);
+bool solve_quadratic(t_quadratic params, double* x0, double* x1);
+void swapf(double* a, double* b);
 
 #endif

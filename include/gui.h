@@ -11,18 +11,18 @@
 /* ************************************************************************** */
 
 #ifndef GUI_H
-# define GUI_H
+#define GUI_H
 
-# include "constants.h"
+#include "constants.h"
 
-void	gui_init(t_gui *gui, const char *rt_filename, bool create_window);
-char	*gui_get_pixel_data(const t_gui *gui, unsigned int x, unsigned int y);
-void	gui_set_pixel(t_gui *gui, unsigned int x, unsigned int y, t_rgb color);
-t_rgb	gui_get_pixel(t_gui *gui, unsigned int x, unsigned int y);
-void	gui_write_canvas(t_gui *gui);
-void	gui_display_scene(t_gui *gui);
-void	gui_render_next_camera(t_gui *gui);
-void	exit_success(t_gui *gui);
-int		save_bmp(const t_gui *gui);
+void  gui_init(t_gui* gui, const char* rt_filename, bool create_window);
+char* gui_get_pixel_data(const t_gui* gui, unsigned int x, unsigned int y);
+void  gui_set_pixel(t_gui* gui, unsigned int x, unsigned int y, t_rgb color);
+t_rgb gui_get_pixel(t_gui* gui, unsigned int x, unsigned int y);
+void  gui_write_canvas(t_gui* gui);
+void  gui_display_scene(t_gui* gui);
+void  gui_render_next_camera(t_gui* gui);
+void  exit_success(t_gui* gui);
+int	  save_bmp(const t_gui* gui);
 
 #endif

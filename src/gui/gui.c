@@ -23,15 +23,14 @@
 // Mlx has a somewhat weird way to save pixel data
 // @return pointer to 0xBBGGRR in memory
 
-char	*gui_get_pixel_data(const t_gui *gui, unsigned x, unsigned y)
+char* gui_get_pixel_data(const t_gui* gui, unsigned x, unsigned y)
 {
-	return (gui->canvas.data
-		+ y * gui->canvas.line_length + x * (gui->canvas.bpp / 8));
+	return (gui->canvas.data + y * gui->canvas.line_length + x * (gui->canvas.bpp / 8));
 }
 
-void	gui_set_pixel(t_gui *gui, unsigned x, unsigned y, t_rgb color)
+void gui_set_pixel(t_gui* gui, unsigned x, unsigned y, t_rgb color)
 {
-	char	*pixel_data;
+	char* pixel_data;
 
 	pixel_data = gui_get_pixel_data(gui, x, y);
 	pixel_data[0] = (uint8_t)color.b;
@@ -39,10 +38,10 @@ void	gui_set_pixel(t_gui *gui, unsigned x, unsigned y, t_rgb color)
 	pixel_data[2] = (uint8_t)color.r;
 }
 
-t_rgb	gui_get_pixel(t_gui *gui, unsigned x, unsigned y)
+t_rgb gui_get_pixel(t_gui* gui, unsigned x, unsigned y)
 {
-	t_rgb	color;
-	char	*pixel_data;
+	t_rgb color;
+	char* pixel_data;
 
 	pixel_data = gui_get_pixel_data(gui, x, y);
 	color.b = (unsigned char)pixel_data[0];
@@ -53,7 +52,7 @@ t_rgb	gui_get_pixel(t_gui *gui, unsigned x, unsigned y)
 
 // Cleanup before exiting
 
-void	exit_success(t_gui *gui)
+void exit_success(t_gui* gui)
 {
 	if (gui == NULL)
 		exit(1);
@@ -73,7 +72,7 @@ void	exit_success(t_gui *gui)
 	exit(0);
 }
 
-void	gui_display_scene(t_gui *gui)
+void gui_display_scene(t_gui* gui)
 {
 	render(gui);
 	mlx_put_image_to_window(gui->mlx, gui->window, gui->canvas.mlx_img, 0, 0);

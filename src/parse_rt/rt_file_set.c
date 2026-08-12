@@ -17,7 +17,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void	set_point(t_vec3 *origin, char *str)
+void set_point(t_vec3* origin, char* str)
 {
 	if (ft_strcount(str, ',') != 2)
 		exit_e("Wrong number of args in point");
@@ -30,9 +30,9 @@ void	set_point(t_vec3 *origin, char *str)
 
 // Set direction vector of a shape, eg. a surface normal of a plane
 
-void	set_dir(t_vec3 *dir, char *str)
+void set_dir(t_vec3* dir, char* str)
 {
-	double	len;
+	double len;
 
 	if (ft_strcount(str, ',') != 2)
 		exit_e("Wrong number of args in direction vector");
@@ -54,7 +54,7 @@ void	set_dir(t_vec3 *dir, char *str)
 	}
 }
 
-void	set_color(t_rgb *color, char *str)
+void set_color(t_rgb* color, char* str)
 {
 	if (ft_strcount(str, ',') != 2)
 		exit_e("Wrong number of args in color");

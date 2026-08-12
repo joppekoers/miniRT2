@@ -13,19 +13,19 @@
 #include "quadratic.h"
 #include <math.h>
 
-void	swapf(double *a, double *b)
+void swapf(double* a, double* b)
 {
-	double	buffer;
+	double buffer;
 
 	buffer = *a;
 	*a = *b;
 	*b = buffer;
 }
 
-bool	solve_quadratic(t_quadratic params, double *x0, double *x1)
+bool solve_quadratic(t_quadratic params, double* x0, double* x1)
 {
-	double	discr;
-	double	q;
+	double discr;
+	double q;
 
 	discr = pow(params.b, 2) - 4 * params.a * params.c;
 	if (discr < 0)

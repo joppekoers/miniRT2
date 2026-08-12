@@ -20,11 +20,11 @@
 ** https://en.wikipedia.org/wiki/Fast_inverse_square_root
 */
 
-static double	q_rsqrt(double number)
+static double q_rsqrt(double number)
 {
 	double	x2;
 	double	threehalfs;
-	t_rsqrt	conv;
+	t_rsqrt conv;
 
 	x2 = number * 0.5;
 	threehalfs = 1.5;
@@ -35,9 +35,9 @@ static double	q_rsqrt(double number)
 	return (conv.f);
 }
 
-void	normalize(t_vec3 *v)
+void normalize(t_vec3* v)
 {
-	double	inv_len;
+	double inv_len;
 
 	inv_len = q_rsqrt(v->x * v->x + v->y * v->y + v->z * v->z);
 	v->x *= inv_len;
@@ -45,7 +45,7 @@ void	normalize(t_vec3 *v)
 	v->z *= inv_len;
 }
 
-t_vec3	unit(t_vec3 v)
+t_vec3 unit(t_vec3 v)
 {
 	normalize(&v);
 	return (v);

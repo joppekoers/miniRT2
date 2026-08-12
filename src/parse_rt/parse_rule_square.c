@@ -19,7 +19,7 @@
 #include <stdlib.h>
 #include <math.h>
 
-static void	set_triangles(t_triangle *trs, const t_vec3 *v, const t_vec3 *edges)
+static void set_triangles(t_triangle* trs, const t_vec3* v, const t_vec3* edges)
 {
 	trs[0].p0 = v[0];
 	trs[0].p1 = v[1];
@@ -38,12 +38,12 @@ static void	set_triangles(t_triangle *trs, const t_vec3 *v, const t_vec3 *edges)
 // edge1 = subtract(p1, p0);
 // edge2 = subtract(p2, p0);
 
-static void	square_to_triangles(t_triangle *trs, t_square sq, double half_side)
+static void square_to_triangles(t_triangle* trs, t_square sq, double half_side)
 {
-	t_vec3	cross_r[3];
-	t_vec3	v[4];
-	t_vec3	tmp[2];
-	t_vec3	edges[4];
+	t_vec3 cross_r[3];
+	t_vec3 v[4];
+	t_vec3 tmp[2];
+	t_vec3 edges[4];
 
 	if (fabs(sq.normal.z) == 1.0)
 		tmp[0] = (t_vec3){1.0, 0.0, 0.0};
@@ -64,10 +64,10 @@ static void	square_to_triangles(t_triangle *trs, t_square sq, double half_side)
 	set_triangles(trs, v, edges);
 }
 
-static void	add_triangles(t_arr **shapes, t_triangle *trs, t_rgb color)
+static void add_triangles(t_arr** shapes, t_triangle* trs, t_rgb color)
 {
-	t_obj	*obj;
-	size_t	i;
+	t_obj* obj;
+	size_t i;
 
 	i = 0;
 	while (i < 2)
@@ -85,12 +85,12 @@ static void	add_triangles(t_arr **shapes, t_triangle *trs, t_rgb color)
 // A square can be represented by 2 triangles.
 // So we add 2 triangels to the renderer instead 1 triangle
 
-void	add_square(t_arr **shapes, char *line)
+void add_square(t_arr** shapes, char* line)
 {
-	t_square	sq;
-	t_rgb		color;
-	char		**items;
-	t_triangle	trs[2];
+	t_square   sq;
+	t_rgb	   color;
+	char**	   items;
+	t_triangle trs[2];
 
 	items = split_clamp(line, 5);
 	set_point(&sq.origin, items[1]);

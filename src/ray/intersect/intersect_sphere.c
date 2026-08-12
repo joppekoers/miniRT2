@@ -16,10 +16,10 @@
 #include <math.h>
 #include "quadratic.h"
 
-static bool	get_intersections(double *t0, double *t1, t_sphere sp, t_ray ray)
+static bool get_intersections(double* t0, double* t1, t_sphere sp, t_ray ray)
 {
 	t_vec3		l;
-	t_quadratic	q;
+	t_quadratic q;
 
 	l = subtract(ray.origin, sp.origin);
 	q.a = dot(ray.dir, ray.dir);
@@ -30,7 +30,7 @@ static bool	get_intersections(double *t0, double *t1, t_sphere sp, t_ray ray)
 
 // see doc/rayspherecases.png
 
-static double	actual_t(double t0, double t1)
+static double actual_t(double t0, double t1)
 {
 	if (t0 > 0 && t1 > 0)
 		return (t0);
@@ -39,11 +39,11 @@ static double	actual_t(double t0, double t1)
 	return (-1);
 }
 
-t_hit	hit_sphere(t_pos pos, t_ray ray)
+t_hit hit_sphere(t_pos pos, t_ray ray)
 {
-	double	t0;
-	double	t1;
-	t_hit	hit;
+	double t0;
+	double t1;
+	t_hit  hit;
 
 	if (!get_intersections(&t0, &t1, pos.sp, ray))
 		return ((t_hit){false});

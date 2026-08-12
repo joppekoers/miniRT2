@@ -16,20 +16,20 @@
 
 // Get the normal that points most towards ray.origin
 
-t_vec3	correct_normal(t_vec3 normal, t_ray ray)
+t_vec3 correct_normal(t_vec3 normal, t_ray ray)
 {
 	if (dot(normal, ray.dir) > EPSILON)
 		normal = scale(normal, -1);
 	return (normal);
 }
 
-t_hit	hit_obj(t_shape shape, t_pos pos, t_ray ray)
+t_hit hit_obj(t_shape shape, t_pos pos, t_ray ray)
 {
-	static	t_hit	(*hit_shape[SHAPE_LAST])(t_pos, t_ray) = {
-		[SHAPE_CYLINDER] = hit_cylinder,
-		[SHAPE_PLANE] = hit_plane,
-		[SHAPE_SPHERE] = hit_sphere,
-		[SHAPE_TRIANGLE] = hit_triangle,
+	static t_hit (*hit_shape[SHAPE_LAST])(t_pos, t_ray) = {
+			[SHAPE_CYLINDER] = hit_cylinder,
+			[SHAPE_PLANE] = hit_plane,
+			[SHAPE_SPHERE] = hit_sphere,
+			[SHAPE_TRIANGLE] = hit_triangle,
 	};
 
 	return (hit_shape[shape](pos, ray));

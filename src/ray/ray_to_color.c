@@ -17,13 +17,13 @@
 
 // Get closest t_obj * (relative to ray.origin) from *shapes
 
-t_bounce	get_bounce(const t_arr *shapes, t_ray ray)
+t_bounce get_bounce(const t_arr* shapes, t_ray ray)
 {
-	size_t		i;
-	t_obj		*obj;
-	t_hit		hit;
-	t_bounce	bounce;
-	double		closest_dist;
+	size_t	 i;
+	t_obj*	 obj;
+	t_hit	 hit;
+	t_bounce bounce;
+	double	 closest_dist;
 
 	i = 0;
 	bounce.obj = NULL;
@@ -48,25 +48,21 @@ t_bounce	get_bounce(const t_arr *shapes, t_ray ray)
 
 // Add light from *light to *l
 
-static void	merge_lights(
-	t_rgb *l,
-	const t_light *light,
-	t_bounce bounce,
-	const t_arr *shapes)
+static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const t_arr* shapes)
 {
-	double		intensity;
+	double intensity;
 
 	if (!is_clear_path(bounce, light, shapes))
-		return ;
+		return;
 	intensity = relative_intensity(bounce.point, bounce.normal, light);
 	*l = add_color(*l, light->color, intensity);
 }
 
-t_rgb	ray_to_color(t_ray ray, const t_gui *gui)
+t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 {
-	size_t		i;
-	t_rgb		l;
-	t_bounce	bounce;
+	size_t	 i;
+	t_rgb	 l;
+	t_bounce bounce;
 
 	bounce = get_bounce(gui->shapes, ray);
 	if (bounce.obj == NULL)

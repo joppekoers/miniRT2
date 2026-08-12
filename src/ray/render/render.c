@@ -17,7 +17,7 @@
 #include <math.h>
 #include <stdio.h>
 
-static void log_progress(unsigned int i, const t_gui *gui)
+static void log_progress(unsigned int i, const t_gui* gui)
 {
 	static unsigned int skip = 0;
 
@@ -39,7 +39,7 @@ static void log_progress(unsigned int i, const t_gui *gui)
 // Every render of a scene consists of gui->y_size rows
 // find_row() is called by any thread that needs a new row to render
 
-static bool find_row(unsigned int *y, const t_thread *thread)
+static bool find_row(unsigned int* y, const t_thread* thread)
 {
 	bool found_non_rendered_row;
 
@@ -60,13 +60,13 @@ static bool find_row(unsigned int *y, const t_thread *thread)
 
 // Render rows until there are none left
 
-static void *run_thread(void *p)
+static void* run_thread(void* p)
 {
 	unsigned int x;
 	unsigned int y;
-	t_thread *thread;
+	t_thread*	 thread;
 
-	thread = (t_thread *)p;
+	thread = (t_thread*)p;
 	while (find_row(&y, thread))
 	{
 		x = 0;
@@ -79,8 +79,7 @@ static void *run_thread(void *p)
 	return (NULL);
 }
 
-static void start_threads(
-	t_thread *threads, t_gui *gui, pthread_mutex_t *row_to_render_lock)
+static void start_threads(t_thread* threads, t_gui* gui, pthread_mutex_t* row_to_render_lock)
 {
 	size_t i;
 
@@ -89,15 +88,15 @@ static void start_threads(
 	{
 		threads[i].gui = gui;
 		threads[i].row_to_render_lock = row_to_render_lock;
-		pthread_create(&threads[i].id, NULL, run_thread, (void *)(&threads[i]));
+		pthread_create(&threads[i].id, NULL, run_thread, (void*)(&threads[i]));
 		i++;
 	}
 }
 
-void render(t_gui *gui)
+void render(t_gui* gui)
 {
-	t_thread threads[THREADS];
-	size_t i;
+	t_thread		threads[THREADS];
+	size_t			i;
 	pthread_mutex_t row_to_render_lock;
 
 	gui->row_to_render = 0;

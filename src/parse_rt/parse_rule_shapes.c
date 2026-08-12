@@ -19,10 +19,10 @@
 #include "intersect.h"
 #include <stdlib.h>
 
-void	add_sphere(t_arr **shapes, char *line)
+void add_sphere(t_arr** shapes, char* line)
 {
-	t_obj	*obj;
-	char	**items;
+	t_obj* obj;
+	char** items;
 
 	obj = malloc_safe(sizeof(t_obj));
 	obj->shape = SHAPE_SPHERE;
@@ -36,10 +36,10 @@ void	add_sphere(t_arr **shapes, char *line)
 		exit_e("malloc");
 }
 
-void	add_plane(t_arr **shapes, char *line)
+void add_plane(t_arr** shapes, char* line)
 {
-	t_obj	*obj;
-	char	**items;
+	t_obj* obj;
+	char** items;
 
 	obj = malloc_safe(sizeof(t_obj));
 	obj->shape = SHAPE_PLANE;
@@ -52,10 +52,10 @@ void	add_plane(t_arr **shapes, char *line)
 		exit_e("malloc");
 }
 
-void	add_cylinder(t_arr **shapes, char *line)
+void add_cylinder(t_arr** shapes, char* line)
 {
-	t_obj	*obj;
-	char	**items;
+	t_obj* obj;
+	char** items;
 
 	obj = malloc_safe(sizeof(t_obj));
 	obj->shape = SHAPE_CYLINDER;
@@ -65,17 +65,16 @@ void	add_cylinder(t_arr **shapes, char *line)
 	obj->pos.cy.radius = strtodbl_clamp(items[3], '\0', 0.0, DOUBLE_MAX) * 0.5;
 	obj->pos.cy.height = strtodbl_clamp(items[4], '\0', 0.0, DOUBLE_MAX);
 	set_color(&obj->color, items[5]);
-	obj->pos.cy.base2 = translate(
-			obj->pos.cy.origin, obj->pos.cy.dir, obj->pos.cy.height);
+	obj->pos.cy.base2 = translate(obj->pos.cy.origin, obj->pos.cy.dir, obj->pos.cy.height);
 	ft_free_until_null_char(items);
 	if (ft_arr_push(shapes, obj) == NULL)
 		exit_e("malloc");
 }
 
-void	add_triangle(t_arr **shapes, char *line)
+void add_triangle(t_arr** shapes, char* line)
 {
-	t_obj	*obj;
-	char	**items;
+	t_obj* obj;
+	char** items;
 
 	obj = malloc_safe(sizeof(t_obj));
 	obj->shape = SHAPE_TRIANGLE;
@@ -87,8 +86,7 @@ void	add_triangle(t_arr **shapes, char *line)
 	ft_free_until_null_char(items);
 	obj->pos.tr.edge1 = subtract(obj->pos.tr.p1, obj->pos.tr.p0);
 	obj->pos.tr.edge2 = subtract(obj->pos.tr.p2, obj->pos.tr.p0);
-	obj->pos.tr.normal = normal_tr(
-			obj->pos.tr.p0, obj->pos.tr.p1, obj->pos.tr.p2);
+	obj->pos.tr.normal = normal_tr(obj->pos.tr.p0, obj->pos.tr.p1, obj->pos.tr.p2);
 	if (ft_arr_push(shapes, obj) == NULL)
 		exit_e("malloc");
 }

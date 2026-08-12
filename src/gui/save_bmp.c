@@ -19,7 +19,7 @@
 #include <fcntl.h>
 #define HEADER_SIZE 54
 
-static size_t	bmp_size(size_t x, size_t y)
+static size_t bmp_size(size_t x, size_t y)
 {
 	if ((x * 3) % 4 != 0)
 		x = x + 4 - ((x * 3) % 4);
@@ -46,24 +46,24 @@ static size_t	bmp_size(size_t x, size_t y)
 ** 50		| 32	| NB OF INDEX OF COLOR (0 = ALL)
 */
 
-static void	header(uint8_t *buf, uint32_t x, uint32_t y, uint32_t file_size)
+static void header(uint8_t* buf, uint32_t x, uint32_t y, uint32_t file_size)
 {
-	*((uint8_t *)&buf[0]) = (uint8_t) 0x42;
-	*((uint8_t *)&buf[1]) = (uint8_t) 0x4D;
-	*((uint32_t *)&buf[2]) = (uint32_t) file_size;
-	*((uint32_t *)&buf[10]) = (uint32_t) HEADER_SIZE;
-	*((uint32_t *)&buf[14]) = (uint32_t) 0x28;
-	*((uint32_t *)&buf[18]) = (uint32_t) x;
-	*((uint32_t *)&buf[22]) = (uint32_t) y;
-	*((uint16_t *)&buf[26]) = (uint16_t) 0x01;
-	*((uint16_t *)&buf[28]) = (uint16_t) 0x18;
+	*((uint8_t*)&buf[0]) = (uint8_t)0x42;
+	*((uint8_t*)&buf[1]) = (uint8_t)0x4D;
+	*((uint32_t*)&buf[2]) = (uint32_t)file_size;
+	*((uint32_t*)&buf[10]) = (uint32_t)HEADER_SIZE;
+	*((uint32_t*)&buf[14]) = (uint32_t)0x28;
+	*((uint32_t*)&buf[18]) = (uint32_t)x;
+	*((uint32_t*)&buf[22]) = (uint32_t)y;
+	*((uint16_t*)&buf[26]) = (uint16_t)0x01;
+	*((uint16_t*)&buf[28]) = (uint16_t)0x18;
 }
 
-static void	write_image(uint8_t *buf, const t_gui *gui)
+static void write_image(uint8_t* buf, const t_gui* gui)
 {
-	unsigned long	buf_i;
-	unsigned long	x;
-	unsigned long	y;
+	unsigned long buf_i;
+	unsigned long x;
+	unsigned long y;
 
 	buf_i = HEADER_SIZE;
 	y = gui->y_size;
@@ -85,11 +85,11 @@ static void	write_image(uint8_t *buf, const t_gui *gui)
 // @return	-1 if failed
 //			 0 if success
 
-int	save_bmp(const t_gui *gui)
+int save_bmp(const t_gui* gui)
 {
-	uint8_t	*buf;
-	int		fd;
-	size_t	file_size;
+	uint8_t* buf;
+	int		 fd;
+	size_t	 file_size;
 
 	fd = open("scene.bmp", O_WRONLY | O_CREAT, 0777);
 	if (fd < 0)
