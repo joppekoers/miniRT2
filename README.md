@@ -1,6 +1,10 @@
-# miniRT
+# miniRT 2
 
-This 42's curriculum project implements a basic ray tracer in C.
+This stared out as 42's curriculum project implements a basic ray tracer in C.
+Since I really enjoyed it I am not expanding upon this project by adding fun features.
+
+All the source code in this project is written by hand, no LLMs
+
 Completely from scratch, the only library (functions) allowed where:
 - minilibX, a very basic window manager
 - open, close, read, write, printf, malloc, free, exit
@@ -18,7 +22,7 @@ It supports the primitives:
 ## Usage
 Supports both macOS and Linux
 ```
-make bonus
+make
 ./miniRT ./rt/room.rt
 ./miniRT --save ./rt/room.rt
 ```
@@ -28,16 +32,3 @@ See `doc/renders` for more
 ![](doc/renders/dragon.png)
 ![](doc/renders/room%205K%2016AA.png)
 ![](doc/renders/deer.png)
-
-## Benchmarking how-to
-This ray tracer can be used as a fun benchmarker.
-1. Change number of cores in `settings.h`
-2. Run `make bonus`
-3. Run `time ./miniRT rt/dragon.rt --save`
-
-## Benchmarking results
-```
-MM:SS | <name> | <date>
-01:01 | MacBook Pro 13-inch 2020, M1, Kernel Version 21.6.0 | 2022-11-22
-00:34 | MacBook Pro 16-inch 2021, M1 Pro, Kernel Version 21.6.0 | 2022-11-22 
-```
