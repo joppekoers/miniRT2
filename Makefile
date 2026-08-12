@@ -41,9 +41,12 @@ HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h')
 SRC				= $(shell find $(SRCDIR) -type f -name '*.c')
 OBJ				= $(foreach src,$(SRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
 
+CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
+					|| find $(HOME)/.vscode/extensions -type f -name clang-format 2>/dev/null | head -n 1)
+
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
-TESTRT			= rt/standard.rt
+TESTRT			= rt/dragon.rt
 
 VPATH = $(shell find $(SRCDIR) -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
@@ -94,14 +97,17 @@ re:
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)
 
+format:
+	@test -n "$(CLANG_FORMAT)" || { echo "clang-format not found"; exit 1; }
+	$(CLANG_FORMAT) --style=file -i $(SRC) $(HEADERS) $(SETTINGS)
+
 silent:
 	@$(MAKE) all > /dev/null
 
 standard:
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TESTRT) --save
-	@while inotifywait -qq -e close_write $(TESTRT); do \
-$(MAKE) all > /dev/null && ./$(NAME) $(TESTRT) --save; done
+	@echo $(TESTRT)
 
 rt:
 	@$(MAKE) all > /dev/null
@@ -117,4 +123,4 @@ rttest:
 -exec mv scene.bmp {}.bmp \; \
 -exec echo "" \;
 
-.PHONY: all clean fclean re silent eval evalclean rt rtall
+.PHONY: all clean fclean re silent eval evalclean rt rtall format

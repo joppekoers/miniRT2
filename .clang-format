@@ -1,0 +1,27 @@
+# Approximates the 42 norminette style used in this repo
+Language: Cpp
+BasedOnStyle: LLVM
+IndentWidth: 4
+TabWidth: 4
+UseTab: Always
+ColumnLimit: 120
+
+AlignConsecutiveDeclarations: AcrossEmptyLines
+IndentPPDirectives: None
+
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: None
+AllowShortIfStatementsOnASingleLine: false
+AllowShortLoopsOnASingleLine: false
+AllowShortBlocksOnASingleLine: false
+AllowShortCaseLabelsOnASingleLine: false
+IndentCaseLabels: true
+PointerAlignment: Left
+SpaceBeforeParens: ControlStatements
+AlignAfterOpenBracket: DontAlign
+ContinuationIndentWidth: 8
+SortIncludes: false
+ReflowComments: false
+AlignTrailingComments: false
+AlignConsecutiveAssignments: false
+AlignEscapedNewlines: DontAlign
