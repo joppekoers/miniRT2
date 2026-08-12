@@ -21,8 +21,6 @@
 // Do not change this define manually, it will be overwritten by the Makefile
 // to enable compile with bonus run: make bonus
 
-#define BONUS 0
-
 // Bool: Enable verbose logging? :boolean
 #define VERBOSE 0
 
@@ -45,11 +43,8 @@
 // Fulfill stupid assignment requirements? :boolean
 #define STUPID 1
 
-// What number of threads should the program use? :unsigned int [1 n]
-#define THREADS 7
-
 // :unsigned int --> 1, 4, 16, 32, ect
-#define ANTI_ALIASING_LEVEL 4
+#define ANTI_ALIASING_LEVEL 1
 
 // Print progress to terminal (eg 42.123%) :boolean
 #define LOG_PROGRESS 1

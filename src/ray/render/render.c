@@ -13,6 +13,7 @@
 #include "constants.h"
 #include "ray.h"
 #include "gui.h"
+#include "helpers.h"
 #include <pthread.h>
 #include <math.h>
 #include <stdio.h>
@@ -79,12 +80,12 @@ static void* run_thread(void* p)
 	return (NULL);
 }
 
-static void start_threads(t_thread* threads, t_gui* gui, pthread_mutex_t* row_to_render_lock)
+static void start_threads(t_thread* threads, t_gui* gui, pthread_mutex_t* row_to_render_lock, size_t thread_count)
 {
 	size_t i;
 
 	i = 0;
-	while (i < THREADS)
+	while (i < thread_count)
 	{
 		threads[i].gui = gui;
 		threads[i].row_to_render_lock = row_to_render_lock;
@@ -95,15 +96,16 @@ static void start_threads(t_thread* threads, t_gui* gui, pthread_mutex_t* row_to
 
 void render(t_gui* gui)
 {
-	t_thread		threads[THREADS];
+	const size_t	thread_count = (size_t)get_number_of_threads();
+	t_thread		threads[thread_count];
 	size_t			i;
 	pthread_mutex_t row_to_render_lock;
 
 	gui->row_to_render = 0;
 	pthread_mutex_init(&row_to_render_lock, NULL);
-	start_threads(threads, gui, &row_to_render_lock);
+	start_threads(threads, gui, &row_to_render_lock, thread_count);
 	i = 0;
-	while (i < THREADS)
+	while (i < thread_count)
 	{
 		pthread_join(threads[i].id, NULL);
 		i++;

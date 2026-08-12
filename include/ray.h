@@ -29,11 +29,8 @@ bool	 is_clear_path(t_bounce from_camera, const t_light* l, const t_arr* shapes)
 t_rgb	 compute_color(unsigned int x, unsigned int y, const t_gui* gui);
 t_ray	 ray_from_pix(double x, double y, const t_gui* gui);
 double	 relative_intensity(t_vec3 p, t_vec3 n, const t_light* light);
-
 t_rgb	 ray_to_color(t_ray ray, const t_gui* gui);
-
 t_rgb	 no_bounce(void);
-
 t_rgb	 add_color(t_rgb color, t_rgb additive, double intensity);
 t_rgb	 mix_color(t_rgb light, t_rgb surface);
 
