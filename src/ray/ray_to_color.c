@@ -64,7 +64,17 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 	t_rgb	 l;
 	t_bounce bounce;
 
+#ifdef USE_OCTREE
+	bounce = octree_bounce(&gui->octree, &ray);
+
+#ifdef OCTREE_DEBUG
+	if (aabb_intersects(&gui->octree.aabb, &ray))
+		return (t_rgb){.r = 255, .g = 0, .b = 0};
+#endif
+#else
 	bounce = get_bounce(gui->shapes, ray);
+#endif
+
 	if (bounce.obj == NULL)
 		return (no_bounce());
 	i = 0;

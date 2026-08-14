@@ -18,6 +18,7 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <assert.h>
 
 #define DOUBLE_MAX 9999999999.0
 #define DOUBLE_MIN -9999999999.0
@@ -33,12 +34,30 @@
 #define NEXT_CAMERA_KEY 8
 #endif
 
-void  exit_e(const char* msg);
-void  exit_range(long num, long min, long max);
-void  exit_ranged(double num, double min, double max);
-void  exit_char(char got, char expected);
-void* malloc_safe(size_t size);
-void* calloc_safe(size_t size);
+void   exit_e(const char* msg) __attribute__((__noreturn__));
+void   exit_range(long num, long min, long max);
+void   exit_ranged(double num, double min, double max);
+void   exit_char(char got, char expected);
+void*  malloc_safe(size_t size);
+void*  calloc_safe(size_t size);
+double max_double(int n, ...);
+double min_double(int n, ...);
+void   test();
+
+int	   get_number_of_threads();
+
+#define min2(a, b) ((a) < (b)) ? (a) : (b)
+#define max2(a, b) ((a) > (b)) ? (a) : (b)
+
+#define min3(a, b, c) ((a) < (b)) ? (((a) < (c)) ? (a) : (c)) : (((b) < (c)) ? (b) : (c))
+#define max3(a, b, c) ((a) > (b)) ? (((a) > (c)) ? (a) : (c)) : (((b) > (c)) ? (b) : (c))
+
+#define DEBUG 1
+#define debug_assert(x) \
+	if (DEBUG) \
+	{ \
+		assert(x); \
+	};
 
 typedef enum e_shape
 {
@@ -118,9 +137,29 @@ typedef struct s_light
 	t_rgb  color;
 } t_light;
 
+typedef struct s_aabb
+{
+	t_vec3 min;
+	t_vec3 max;
+
+} t_aabb;
+typedef struct s_octree
+{
+	struct s_octree* children[8];
+	uint8_t			 children_count;
+	t_aabb			 aabb;
+	t_arr*			 objects;
+
+} t_octree;
+
 typedef struct s_gui
 {
-	t_arr*		 shapes;
+	// holds all the objects in the scene
+	t_arr* shapes;
+
+#ifdef USE_OCTREE
+	t_octree octree;
+#endif
 	t_arr*		 lights;
 	t_arr*		 cameras;
 	size_t		 camera_i;
@@ -198,5 +237,17 @@ typedef struct s_bounce
 	t_vec3 normal;
 	t_vec3 ray_origin;
 } t_bounce;
+
+bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
+bool	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
+
+t_aabb	 obj_get_aabb(const t_obj* obj);
+bool	 obj_is_inside_aabb(const t_obj* obj, const t_aabb* aabb);
+
+void	 octree_root(t_octree* octree);
+bool	 octree_subdivide(t_octree* octree);
+bool	 octree_add_obj(t_octree* octree, t_obj* obj);
+void	 octree_shrink_to_fit(t_octree* octree);
+t_bounce octree_bounce(const t_octree* octree, const t_ray* ray);
 
 #endif

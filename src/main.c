@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // Main program consists of 2 modes:
 // 1 open X11 window and switch between cameras
@@ -26,6 +27,8 @@
 int main(int argc, const char* argv[])
 {
 	t_gui gui;
+
+	test();
 
 	if (argc == 3 && ft_strcmp((char*)argv[2], "--save") == 0)
 	{

@@ -108,6 +108,7 @@ standard:
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@echo $(TESTRT)
+	@open scene.bmp
 
 rt:
 	@$(MAKE) all > /dev/null

@@ -13,7 +13,6 @@
 #include "constants.h"
 #include "ray.h"
 #include "gui.h"
-#include "helpers.h"
 #include <pthread.h>
 #include <math.h>
 #include <stdio.h>

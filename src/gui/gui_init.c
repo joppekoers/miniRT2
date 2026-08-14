@@ -74,6 +74,21 @@ static void open_window(t_gui* gui)
 	mlx_loop(gui->mlx);
 }
 
+#ifdef USE_OCTREE
+void populate_octree(t_gui* gui)
+{
+
+	octree_root(&gui->octree);
+	t_obj* obj;
+	size_t i = 0;
+	while ((obj = ft_arr_get(gui->shapes, i++)))
+	{
+		debug_assert(octree_add_obj(&gui->octree, obj));
+	}
+	octree_shrink_to_fit(&gui->octree);
+}
+#endif
+
 void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
@@ -81,6 +96,9 @@ void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 	if (gui->mlx == NULL)
 		exit_e("mlx_init() failed");
 	parse_rt(gui, rt_filename);
+#ifdef USE_OCTREE
+	populate_octree(gui);
+#endif
 	set_canvas(&gui->canvas, gui, create_window);
 	if (create_window)
 		open_window(gui);
