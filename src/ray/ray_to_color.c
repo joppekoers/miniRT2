@@ -57,6 +57,16 @@ static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const 
 	intensity = relative_intensity(bounce.point, bounce.normal, light);
 	*l = add_color(*l, light->color, intensity);
 }
+t_rgb debug_overlay(t_ray ray, const t_gui* gui, t_rgb rgb)
+{
+#ifdef OCTREE_DEBUG
+	if (aabb_intersects(&gui->octree.aabb, &ray))
+		return add_color(rgb, (t_rgb){.r = 255, .g = 0, .b = 0}, 0.4);
+#endif
+	(void)ray;
+	(void)gui;
+	return rgb;
+}
 
 t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 {
@@ -66,17 +76,12 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 
 #ifdef USE_OCTREE
 	bounce = octree_bounce(&gui->octree, &ray);
-
-#ifdef OCTREE_DEBUG
-	if (aabb_intersects(&gui->octree.aabb, &ray))
-		return (t_rgb){.r = 255, .g = 0, .b = 0};
-#endif
 #else
 	bounce = get_bounce(gui->shapes, ray);
 #endif
 
 	if (bounce.obj == NULL)
-		return (no_bounce());
+		return debug_overlay(ray, gui, no_bounce());
 	i = 0;
 	l = gui->ambient.scalar;
 	while (ft_arr_get(gui->lights, i) != NULL)
@@ -84,5 +89,5 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 		merge_lights(&l, ft_arr_get(gui->lights, i), bounce, gui->shapes);
 		i++;
 	}
-	return (mix_color(l, bounce.color));
+	return debug_overlay(ray, gui, mix_color(l, bounce.color));
 }

@@ -23,10 +23,10 @@
 
 #define USE_OCTREE
 
-#define OCTREE_DEBUG
+// #define OCTREE_DEBUG
 
 // Bool: Enable verbose logging? :boolean
-#define VERBOSE 0
+#define VERBOSE 1
 
 // Allow non-normalized direction vector in .rt file? :boolean
 // The vector will still be normalized before internal use.
@@ -42,10 +42,7 @@
 #define COUNT_RULES 1
 
 // Allow comments (line prefixed by #) .rt file? :boolean
-#define ALLOW_RT_COMMENTS 0
-
-// Fulfill stupid assignment requirements? :boolean
-#define STUPID 1
+#define ALLOW_RT_COMMENTS 1
 
 // :unsigned int --> 1, 4, 16, 32, ect
 #define ANTI_ALIASING_LEVEL 1

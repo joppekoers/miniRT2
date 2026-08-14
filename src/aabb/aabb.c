@@ -90,11 +90,10 @@ void octree_shrink_to_fit(t_octree* octree)
 	t_vec3 min = octree->aabb.min;
 	t_vec3 max = octree->aabb.max;
 
-	for (size_t i = 0; i++;)
+	size_t i = 0;
+	t_obj* obj;
+	while ((obj = ft_arr_get(octree->objects, i++)))
 	{
-		t_obj* obj = ft_arr_get(octree->objects, i);
-		if (!obj)
-			continue;
 		const t_aabb aabb_obj = obj_get_aabb(obj);
 
 		min.x = max2(min.x, aabb_obj.min.x);

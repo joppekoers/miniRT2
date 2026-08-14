@@ -19,6 +19,7 @@
 #include <sys/types.h>
 #include <stdint.h>
 #include <assert.h>
+#include <printf.h>
 
 #define DOUBLE_MAX 9999999999.0
 #define DOUBLE_MIN -9999999999.0
