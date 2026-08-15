@@ -22,9 +22,9 @@ static bool get_intersections(double* t0, double* t1, t_sphere sp, t_ray ray)
 	t_quadratic q;
 
 	l = subtract(ray.origin, sp.origin);
-	q.a = dot(ray.dir, ray.dir);
-	q.b = 2 * dot(ray.dir, l);
-	q.c = dot(l, l) - sp.radius2;
+	q.a = dot(&ray.dir, &ray.dir);
+	q.b = 2 * dot(&ray.dir, &l);
+	q.c = dot(&l, &l) - sp.radius2;
 	return (solve_quadratic(q, t0, t1));
 }
 
@@ -52,7 +52,7 @@ t_hit hit_sphere(t_pos pos, t_ray ray)
 		return ((t_hit){false});
 	hit.hit = true;
 	hit.point = translate(ray.origin, ray.dir, hit.dist);
-	if (distance2(ray.origin, pos.sp.origin) > pos.sp.radius2)
+	if (distance2(&ray.origin, &pos.sp.origin) > pos.sp.radius2)
 		hit.normal = unit(subtract(hit.point, pos.sp.origin));
 	else
 		hit.normal = unit(subtract(pos.sp.origin, hit.point));

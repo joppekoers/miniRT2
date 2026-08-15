@@ -26,16 +26,16 @@ typedef struct s_vec3
 	double z;
 } t_vec3;
 
-double length(t_vec3 v);
-double dot(t_vec3 a, t_vec3 b);
+double length(const t_vec3* v);
+double dot(const t_vec3* a, const t_vec3* b);
 t_vec3 cross(t_vec3 a, t_vec3 b);
 t_vec3 add(t_vec3 a, t_vec3 b);
 t_vec3 subtract(t_vec3 a, t_vec3 b);
 t_vec3 scale(t_vec3 v, double r);
 t_vec3 unit(t_vec3 v);
 t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
-double distance2(t_vec3 a, t_vec3 b);
-double distance(t_vec3 a, t_vec3 b);
+double distance2(const t_vec3* a, const t_vec3* b);
+double distance(const t_vec3* a, const t_vec3* b);
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
 t_vec3 vec3(double x, double y, double z);
 void   normalize(t_vec3* v);

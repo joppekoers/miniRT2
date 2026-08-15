@@ -22,7 +22,7 @@ t_vec3 cylinder_normal(t_vec3 hitpoint, t_ray ray, t_cylinder cylinder)
 	t_vec3 normal;
 
 	ctp = subtract(hitpoint, cylinder.origin);
-	normal = subtract(ctp, scale(cylinder.dir, dot(cylinder.dir, ctp)));
+	normal = subtract(ctp, scale(cylinder.dir, dot(&cylinder.dir, &ctp)));
 	normalize(&normal);
 	return (correct_normal(normal, ray));
 }
@@ -34,12 +34,16 @@ void check_t(double* t, t_cylinder cylinder, t_ray ray)
 {
 	t_vec3 q;
 	t_vec3 p2;
+	t_vec3 q_to_base;
+	t_vec3 q_to_top;
 
 	p2 = add(cylinder.origin, scale(cylinder.dir, cylinder.height));
 	q = add(ray.origin, scale(ray.dir, *t));
-	if (dot(cylinder.dir, subtract(q, cylinder.origin)) <= 0)
+	q_to_base = subtract(q, cylinder.origin);
+	q_to_top = subtract(q, p2);
+	if (dot(&cylinder.dir, &q_to_base) <= 0)
 		*t = -1;
-	if (dot(cylinder.dir, subtract(q, p2)) >= 0)
+	if (dot(&cylinder.dir, &q_to_top) >= 0)
 		*t = -1;
 }
 
@@ -47,16 +51,17 @@ int cyl_get_roots(double* t0, double* t1, t_cylinder cylinder, t_ray ray)
 {
 	t_vec3 a_sqrt;
 	t_vec3 right;
+	t_vec3 oc;
 	double a;
 	double b;
 	double c;
 
-	a_sqrt = subtract(ray.dir, scale(cylinder.dir, dot(ray.dir, cylinder.dir)));
-	a = dot(a_sqrt, a_sqrt);
-	right = subtract(subtract(ray.origin, cylinder.origin),
-			scale(cylinder.dir, dot(subtract(ray.origin, cylinder.origin), cylinder.dir)));
-	b = 2 * dot(a_sqrt, right);
-	c = dot(right, right) - (cylinder.radius * cylinder.radius);
+	a_sqrt = subtract(ray.dir, scale(cylinder.dir, dot(&ray.dir, &cylinder.dir)));
+	a = dot(&a_sqrt, &a_sqrt);
+	oc = subtract(ray.origin, cylinder.origin);
+	right = subtract(oc, scale(cylinder.dir, dot(&oc, &cylinder.dir)));
+	b = 2 * dot(&a_sqrt, &right);
+	c = dot(&right, &right) - (cylinder.radius * cylinder.radius);
 	if (!solve_quadratic((t_quadratic){a, b, c}, t0, t1))
 		return (0);
 	return (1);

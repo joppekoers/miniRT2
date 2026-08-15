@@ -14,23 +14,23 @@
 #include "constants.h"
 #include <math.h>
 
-double length(t_vec3 v)
+inline double length(const t_vec3* v)
 {
-	return (sqrt(v.x * v.x + v.y * v.y + v.z * v.z));
+	return (sqrt(v->x * v->x + v->y * v->y + v->z * v->z));
 }
 
 // @return product of the Euclidean magnitudes of the two vectors
 // and the cosine of the angle between them.
 // = length(a) * length(b) * cos(alpha)
 
-double dot(t_vec3 a, t_vec3 b)
+inline double dot(const t_vec3* a, const t_vec3* b)
 {
-	return (a.x * b.x + a.y * b.y + a.z * b.z);
+	return (a->x * b->x + a->y * b->y + a->z * b->z);
 }
 
 // @return vector orthogonal (perpendicular) to a and b
 
-t_vec3 cross(t_vec3 a, t_vec3 b)
+inline t_vec3 cross(t_vec3 a, t_vec3 b)
 {
 	t_vec3 v;
 
@@ -40,7 +40,7 @@ t_vec3 cross(t_vec3 a, t_vec3 b)
 	return (v);
 }
 
-t_vec3 add(t_vec3 a, t_vec3 b)
+inline t_vec3 add(t_vec3 a, t_vec3 b)
 {
 	t_vec3 v;
 
@@ -64,7 +64,7 @@ t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1)
 
 	dir = unit(subtract(line1, line0));
 	v = subtract(p, line0);
-	t = dot(v, dir);
+	t = dot(&v, &dir);
 	p_on_line = translate(line0, dir, t);
 	return (p_on_line);
 }

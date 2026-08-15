@@ -16,7 +16,7 @@
 
 // = a - b || to, from
 
-t_vec3 subtract(t_vec3 a, t_vec3 b)
+inline t_vec3 subtract(t_vec3 a, t_vec3 b)
 {
 	t_vec3 v;
 
@@ -26,7 +26,7 @@ t_vec3 subtract(t_vec3 a, t_vec3 b)
 	return (v);
 }
 
-t_vec3 scale(t_vec3 v, double r)
+inline t_vec3 scale(t_vec3 v, double r)
 {
 	t_vec3 vec;
 
@@ -45,17 +45,17 @@ t_vec3 translate(t_vec3 origin, t_vec3 dir, double t)
 
 // The (always positive) squared distance between a and b
 
-double distance2(t_vec3 a, t_vec3 b)
+inline double distance2(const t_vec3* a, const t_vec3* b)
 {
 	t_vec3 ab;
 
-	ab = subtract(a, b);
+	ab = subtract(*a, *b);
 	return (ab.x * ab.x + ab.y * ab.y + ab.z * ab.z);
 }
 
 // The (always positive) distance between a and b
 
-double distance(t_vec3 a, t_vec3 b)
+inline double distance(const t_vec3* a, const t_vec3* b)
 {
 	return (sqrt(distance2(a, b)));
 }

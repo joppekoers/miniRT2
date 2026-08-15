@@ -68,19 +68,19 @@ t_hit hit_triangle(t_pos pos, t_ray ray)
 	t_hit_triangle n;
 
 	n.h = cross(ray.dir, pos.tr.edge2);
-	n.a = dot(pos.tr.edge1, n.h);
+	n.a = dot(&pos.tr.edge1, &n.h);
 	if (n.a > -EPSILON && n.a < EPSILON)
 		return ((t_hit){false});
 	n.f = 1.0 / n.a;
 	n.s = subtract(ray.origin, pos.tr.p0);
-	n.u = n.f * dot(n.s, n.h);
+	n.u = n.f * dot(&n.s, &n.h);
 	if (n.u < 0.0 || n.u > 1.0)
 		return ((t_hit){false});
 	n.q = cross(n.s, pos.tr.edge1);
-	n.v = n.f * dot(ray.dir, n.q);
+	n.v = n.f * dot(&ray.dir, &n.q);
 	if (n.v < 0.0 || n.u + n.v > 1.0)
 		return ((t_hit){false});
-	n.t = n.f * dot(pos.tr.edge2, n.q);
+	n.t = n.f * dot(&pos.tr.edge2, &n.q);
 	if (n.t < EPSILON)
 		return ((t_hit){false});
 	n.hit.hit = true;
