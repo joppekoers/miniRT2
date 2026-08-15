@@ -77,10 +77,14 @@ static void open_window(t_gui* gui)
 void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
+	if (DEBUG)
+		printf("%s\n", rt_filename);
+	double timer = timer_now();
 	gui->mlx = mlx_init();
 	if (gui->mlx == NULL)
 		exit_e("mlx_init() failed");
-	double timer = timer_now();
+	timer_print("mlx_init", timer);
+	timer = timer_now();
 	parse_rt(gui, rt_filename);
 	timer_print("Parse .rt", timer);
 #ifdef USE_OCTREE

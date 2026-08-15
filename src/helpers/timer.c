@@ -2,8 +2,7 @@
 #include <sys/time.h>
 #include <stdio.h>
 
-// seconds since an arbitrary fixed point, only useful for measuring durations
-double timer_now(void)
+double timer_now()
 {
 	struct timeval tv;
 
@@ -13,5 +12,6 @@ double timer_now(void)
 
 void timer_print(const char* label, double start)
 {
-	printf("%-12s %8.3f seconds\n", label, timer_now() - start);
+	if (VERBOSE)
+		printf("%-12s %8.3fs\n", label, timer_now() - start);
 }

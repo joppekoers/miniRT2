@@ -32,10 +32,12 @@ int main(int argc, const char* argv[])
 
 	if (argc == 3 && ft_strcmp((char*)argv[2], "--save") == 0)
 	{
+		const double timer = timer_now();
 		gui_init(&gui, argv[1], false);
 		render(&gui);
 		if (save_bmp(&gui) != 0)
 			exit_e(strerror(errno));
+		timer_print("Total", timer);
 		exit_success(&gui);
 	}
 	else if (argc == 2)
