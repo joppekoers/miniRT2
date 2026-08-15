@@ -157,19 +157,19 @@ typedef struct s_octree
 {
 	t_vec  children; // type: t_octree
 	t_aabb aabb;
-	t_arr* objects;
+	t_vec  objects; // type: t_obj
 } t_octree;
 
 typedef struct s_gui
 {
 	// holds all the objects in the scene
-	t_arr* shapes;
+	t_vec shapes; // type: t_obj
 
 #ifdef USE_OCTREE
 	t_octree octree;
 #endif
-	t_arr*		 lights;
-	t_arr*		 cameras;
+	t_vec		 lights;  // type: t_light
+	t_vec		 cameras; // type: t_camera
 	size_t		 camera_i;
 	t_ambient	 ambient;
 	unsigned int x_size;
@@ -260,7 +260,7 @@ bool	 obj_is_inside_aabb(const t_obj* obj, const t_aabb* aabb);
 
 t_octree octree(t_aabb aabb, size_t objects);
 t_octree octree_root(size_t objects);
-t_octree octree_from_objects(t_arr* objects);
+t_octree octree_from_objects(const t_vec* objects);
 void	 octree_subdivide(t_octree* octree);
 bool	 octree_add_obj(t_octree* octree, t_obj* obj);
 void	 octree_shrink_to_fit(t_octree* octree);

@@ -46,9 +46,8 @@ t_bounce get_bounce(const t_gui* gui, t_ray ray)
 
 	i = 0;
 	bounce_nobounce(&bounce);
-	while (ft_arr_get(gui->shapes, i) != NULL)
+	while ((obj = vec_getp(&gui->shapes, i)) != NULL)
 	{
-		obj = ft_arr_get(gui->shapes, i);
 		hit = hit_obj(obj->shape, obj->pos, ray);
 		if (hit.hit && hit.dist < bounce.distance)
 			bounce_assign(&bounce, &hit, obj);
@@ -92,9 +91,9 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 		return debug_overlay(ray, gui, no_bounce());
 	i = 0;
 	l = gui->ambient.scalar;
-	while (ft_arr_get(gui->lights, i) != NULL)
+	while (vec_getp(&gui->lights, i) != NULL)
 	{
-		merge_lights(&l, ft_arr_get(gui->lights, i), bounce, gui);
+		merge_lights(&l, vec_getp(&gui->lights, i), bounce, gui);
 		i++;
 	}
 	return debug_overlay(ray, gui, mix_color(l, bounce.color));

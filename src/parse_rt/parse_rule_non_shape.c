@@ -19,34 +19,32 @@
 
 void add_camera(t_gui* gui, char* line)
 {
-	char**	  items;
-	t_camera* cam;
+	char**	 items;
+	t_camera cam;
 
-	cam = calloc_safe(sizeof(t_camera));
 	items = split_clamp(line, 4);
-	set_point(&cam->origin, items[1]);
-	set_dir(&cam->dir, items[2]);
-	cam->fov = strtodbl_clamp(items[3], '\0', 0.0, 180.0);
-	cam->fov = ft_radians(cam->fov);
+	set_point(&cam.origin, items[1]);
+	set_dir(&cam.dir, items[2]);
+	cam.fov = strtodbl_clamp(items[3], '\0', 0.0, 180.0);
+	cam.fov = ft_radians(cam.fov);
 	ft_free_until_null_char(items);
-	if (ft_arr_push(&gui->cameras, cam) == NULL)
+	if (vec_push(&gui->cameras, &cam) == NULL)
 		exit_e("malloc");
-	if (gui->cameras->length == 1)
-		ft_memcpy(&gui->camera, cam, sizeof(t_camera));
+	if (gui->cameras.length == 1)
+		ft_memcpy(&gui->camera, &cam, sizeof(t_camera));
 }
 
-void add_light(t_arr** lights, char* line)
+void add_light(t_vec* lights, char* line)
 {
-	char**	 items;
-	t_light* light;
+	char**	items;
+	t_light light;
 
-	light = malloc_safe(sizeof(t_light));
 	items = split_clamp(line, 4);
-	set_point(&light->origin, items[1]);
-	light->brightness = strtodbl_clamp(items[2], '\0', 0.0, 1.0);
-	set_color(&light->color, items[3]);
+	set_point(&light.origin, items[1]);
+	light.brightness = strtodbl_clamp(items[2], '\0', 0.0, 1.0);
+	set_color(&light.color, items[3]);
 	ft_free_until_null_char(items);
-	if (ft_arr_push(lights, light) == NULL)
+	if (vec_push(lights, &light) == NULL)
 		exit_e("malloc");
 }
 

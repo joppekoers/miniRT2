@@ -56,9 +56,9 @@ void exit_success(t_gui* gui)
 {
 	if (gui == NULL)
 		exit(1);
-	ft_arr_free(gui->shapes, free);
-	ft_arr_free(gui->cameras, free);
-	ft_arr_free(gui->lights, free);
+	vec_free(&gui->shapes, NULL);
+	vec_free(&gui->cameras, NULL);
+	vec_free(&gui->lights, NULL);
 	if (gui->window)
 		mlx_destroy_window(gui->mlx, gui->window);
 	if (gui->canvas.mlx_img)

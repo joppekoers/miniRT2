@@ -77,6 +77,9 @@ static void open_window(t_gui* gui)
 void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
+	gui->shapes = vec(0, sizeof(t_obj));
+	gui->lights = vec(0, sizeof(t_light));
+	gui->cameras = vec(0, sizeof(t_camera));
 	if (DEBUG)
 		printf("%s\n", rt_filename);
 	double timer = timer_now();
@@ -89,7 +92,7 @@ void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 	timer_print("Parse .rt", timer);
 #ifdef USE_OCTREE
 	timer = timer_now();
-	gui->octree = octree_from_objects(gui->shapes);
+	gui->octree = octree_from_objects(&gui->shapes);
 	timer_print("Build octree", timer);
 #endif
 	set_canvas(&gui->canvas, gui, create_window);

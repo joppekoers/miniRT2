@@ -13,7 +13,7 @@ t_octree octree(t_aabb aabb, size_t objects)
 	ft_bzero(&octree, sizeof(t_octree));
 	octree.aabb = aabb;
 	// octree.children = vec(8, sizeof(t_octree));
-	octree.objects = ft_arr(objects);
+	octree.objects = vec(objects, sizeof(t_obj));
 	return octree;
 }
 
@@ -48,12 +48,12 @@ static size_t octree_max_depth(const t_octree* o)
 	return max_depth + 1;
 }
 
-t_octree octree_from_objects(t_arr* objects)
+t_octree octree_from_objects(const t_vec* objects)
 {
 	t_octree root = octree_root(objects->length);
 	t_obj*	 obj;
 	size_t	 i = 0;
-	while ((obj = ft_arr_get(objects, i++)))
+	while ((obj = vec_getp(objects, i++)))
 	{
 		debug_assert(octree_add_obj(&root, obj));
 	}
@@ -71,14 +71,14 @@ bool octree_add_obj(t_octree* octree, t_obj* obj)
 {
 	if (!obj_is_inside_aabb(obj, &octree->aabb))
 		return false;
-	ft_arr_push(&octree->objects, obj);
+	vec_push(&octree->objects, obj);
 
 	return true;
 }
 
 void octree_shrink_to_fit(t_octree* octree)
 {
-	if (octree->objects->length == 0)
+	if (octree->objects.length == 0)
 		return;
 
 	t_vec3 min = {.x = DBL_MAX, .y = DBL_MAX, .z = DBL_MAX};
@@ -86,7 +86,7 @@ void octree_shrink_to_fit(t_octree* octree)
 
 	size_t i = 0;
 	t_obj* obj;
-	while ((obj = ft_arr_get(octree->objects, i++)))
+	while ((obj = vec_getp(&octree->objects, i++)))
 	{
 		const t_aabb aabb_obj = obj_get_aabb(obj);
 
@@ -112,7 +112,7 @@ static void octree_bounce_recurse(const t_octree* octree, const t_ray* ray, t_bo
 
 	t_obj* obj;
 	size_t i = 0;
-	while ((obj = ft_arr_get(octree->objects, i++)))
+	while ((obj = vec_getp(&octree->objects, i++)))
 	{
 		t_hit hit = hit_obj(obj->shape, obj->pos, *ray);
 		if (hit.hit && hit.dist < bounce->distance)
@@ -143,7 +143,7 @@ void make_children(t_octree* o)
 	const t_vec3 min = o->aabb.min;
 	const t_vec3 max = o->aabb.max;
 	const t_vec3 center = scale(add(min, max), 0.5);
-	const size_t objects = o->objects->length / 8;
+	const size_t objects = o->objects.length / 8;
 	t_octree new;
 
 	o->children = vec(8, sizeof(t_octree));
@@ -167,12 +167,12 @@ void make_children(t_octree* o)
 
 void move_objects_to_children(t_octree* o)
 {
-	t_arr*	  objects = o->objects;
+	t_vec*	  objects = &o->objects;
 	size_t	  i = objects->length;
 	t_obj*	  obj;
 	t_octree* child;
 
-	while (i && (obj = ft_arr_get(objects, --i)))
+	while (i && (obj = vec_getp(objects, --i)))
 	{
 		size_t _i = 0;
 		while ((child = vec_getp(&o->children, _i++)))
@@ -180,17 +180,17 @@ void move_objects_to_children(t_octree* o)
 			if (!obj_is_inside_aabb(obj, &child->aabb))
 				continue;
 
-			ft_arr_push(&child->objects, obj);
+			vec_push(&child->objects, obj);
 
 			// the current obj is inserted into a child, so it should be removed from the current aabb
 			// we take the last obj that we have and set that at the current index
 			// this last element will always get popped
 			if (i + 1 != objects->length && objects->length)
 			{
-				void* last = ft_arr_get(objects, objects->length - 1);
-				ft_arr_set(&objects, i, last);
+				void* last = vec_getp(objects, objects->length - 1);
+				vec_set(objects, i, last);
 			}
-			ft_arr_pop(&objects, NULL);
+			vec_pop(objects, NULL);
 			break;
 		}
 	}
@@ -198,7 +198,7 @@ void move_objects_to_children(t_octree* o)
 
 static void subdivide_recursive(t_octree* o, size_t depth)
 {
-	if (o->objects->length < 100 || depth >= OCTREE_MAX_DEPTH)
+	if (o->objects.length < 100 || depth >= OCTREE_MAX_DEPTH)
 		return;
 
 	make_children(o);
