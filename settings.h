@@ -21,7 +21,7 @@
 // Do not change this define manually, it will be overwritten by the Makefile
 // to enable compile with bonus run: make bonus
 
-#define USE_OCTREE
+// #define USE_OCTREE
 
 // #define OCTREE_DEBUG
 

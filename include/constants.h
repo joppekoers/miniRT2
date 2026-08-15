@@ -239,12 +239,16 @@ typedef struct s_hit
 
 typedef struct s_bounce
 {
-	t_obj* obj;
-	t_rgb  color;
-	t_vec3 point;
-	t_vec3 normal;
-	t_vec3 ray_origin;
+	const t_obj* obj;
+	t_rgb		 color;
+	t_vec3		 point;
+	t_vec3		 normal;
+	t_vec3		 ray_origin;
+	double		 distance;
 } t_bounce;
+
+void	 bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj);
+void	 bounce_nobounce(t_bounce* b);
 
 bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
 double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);

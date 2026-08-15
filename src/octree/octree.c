@@ -102,51 +102,38 @@ void octree_shrink_to_fit(t_octree* octree)
 	octree->aabb.max = max;
 }
 
-t_bounce octree_bounce(const t_octree* octree, const t_ray* ray)
+static void octree_bounce_children(const t_octree* octree, const t_ray* ray, t_bounce* bounce);
+
+static void octree_bounce_recurse(const t_octree* octree, const t_ray* ray, t_bounce* bounce)
 {
-	if (aabb_intersects(&octree->aabb, ray) < 0)
-		return (t_bounce){.obj = NULL};
+	const double aabb_intersect = aabb_intersects(&octree->aabb, ray);
+	if (aabb_intersect < 0 || aabb_intersect > bounce->distance)
+		return;
 
-	double	 closest_dist = DBL_MAX;
-	t_bounce bounce;
-	t_obj*	 obj;
-	size_t	 i = 0;
-
-	bounce.obj = NULL;
-	bounce.ray_origin = ray->origin;
-
+	t_obj* obj;
+	size_t i = 0;
 	while ((obj = ft_arr_get(octree->objects, i++)))
 	{
 		t_hit hit = hit_obj(obj->shape, obj->pos, *ray);
-		if (hit.hit && hit.dist < closest_dist)
-		{
-			closest_dist = hit.dist;
-			bounce.obj = obj;
-			bounce.color = obj->color;
-			bounce.point = hit.point;
-			bounce.normal = hit.normal;
-		}
+		if (hit.hit && hit.dist < bounce->distance)
+			bounce_assign(bounce, &hit, obj);
 	}
 
-	// TODO: this is not ignoring the aabbs that are further away than the closest_dist, that would never hit
-	{
-		t_octree* child;
-		size_t	  i = 0;
-		while ((child = vec_getp(&octree->children, i++)))
-		{
-			t_bounce b = octree_bounce(child, ray);
-			if (b.obj)
-			{
-				double d = distance(ray->origin, b.point);
-				if (d < closest_dist)
-				{
-					closest_dist = d;
-					bounce = b;
-				}
-			}
-		}
-	}
+	octree_bounce_children(octree, ray, bounce);
+}
 
+static void octree_bounce_children(const t_octree* octree, const t_ray* ray, t_bounce* bounce)
+{
+	t_octree* child;
+	size_t	  i = 0;
+	while ((child = vec_getp(&octree->children, i++)))
+		octree_bounce_recurse(child, ray, bounce);
+}
+
+t_bounce octree_bounce(const t_octree* octree, const t_ray* ray)
+{
+	t_bounce bounce = {.obj = NULL, .distance = DBL_MAX, .ray_origin = ray->origin};
+	octree_bounce_recurse(octree, ray, &bounce);
 	return bounce;
 }
 

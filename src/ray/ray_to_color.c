@@ -14,6 +14,22 @@
 #include "intersect.h"
 #include "constants.h"
 #include "vector.h"
+#include "float.h"
+
+void bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj)
+{
+	b->distance = hit->dist;
+	b->obj = obj;
+	b->color = obj->color;
+	b->point = hit->point;
+	b->normal = hit->normal;
+}
+
+void bounce_nobounce(t_bounce* b)
+{
+	b->obj = NULL;
+	b->distance = DBL_MAX;
+}
 
 // Get closest t_obj * (relative to ray.origin) from *shapes
 
@@ -23,24 +39,15 @@ t_bounce get_bounce(const t_arr* shapes, t_ray ray)
 	t_obj*	 obj;
 	t_hit	 hit;
 	t_bounce bounce;
-	double	 closest_dist;
 
 	i = 0;
-	bounce.obj = NULL;
-	bounce.ray_origin = ray.origin;
-	closest_dist = DOUBLE_MAX;
+	bounce_nobounce(&bounce);
 	while (ft_arr_get(shapes, i) != NULL)
 	{
 		obj = ft_arr_get(shapes, i);
 		hit = hit_obj(obj->shape, obj->pos, ray);
-		if (hit.hit && hit.dist < closest_dist)
-		{
-			closest_dist = hit.dist;
-			bounce.obj = obj;
-			bounce.color = obj->color;
-			bounce.point = hit.point;
-			bounce.normal = hit.normal;
-		}
+		if (hit.hit && hit.dist < bounce.distance)
+			bounce_assign(&bounce, &hit, obj);
 		i++;
 	}
 	return (bounce);
