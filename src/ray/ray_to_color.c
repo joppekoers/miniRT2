@@ -60,7 +60,7 @@ static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const 
 t_rgb debug_overlay(t_ray ray, const t_gui* gui, t_rgb rgb)
 {
 #ifdef OCTREE_DEBUG
-	if (aabb_intersects(&gui->octree.aabb, &ray))
+	if (aabb_intersects(&gui->octree.aabb, &ray) >= 0)
 		return add_color(rgb, (t_rgb){.r = 255, .g = 0, .b = 0}, 0.4);
 #endif
 	(void)ray;
