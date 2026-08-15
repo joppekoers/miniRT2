@@ -16,3 +16,4 @@ scene.*
 *.swiftmodule
 lib/minilibx-linux/Makefile.gen
 lib/minilibx-linux/test/Makefile.gen
+Makefile.gen

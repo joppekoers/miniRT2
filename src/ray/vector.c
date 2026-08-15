@@ -68,3 +68,8 @@ t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1)
 	p_on_line = translate(line0, dir, t);
 	return (p_on_line);
 }
+
+t_vec3 vec3(double x, double y, double z)
+{
+	return (t_vec3){x, y, z};
+}

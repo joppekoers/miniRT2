@@ -53,7 +53,7 @@ void* malloc_safe(size_t size)
 
 	p = malloc(size);
 	if (p == NULL)
-		exit_e("malloc");
+		exit_e("malloc failed");
 	return (p);
 }
 

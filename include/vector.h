@@ -15,6 +15,25 @@
 
 #include "constants.h"
 
+typedef struct s_vec
+{
+	size_t	 start_i;
+	size_t	 length;
+	size_t	 byte_size;
+	size_t	 element_size;
+	uint8_t* table;
+} t_vec;
+
+t_vec  vec(size_t elements, size_t element_size);
+void*  vec_set(t_vec* vec, size_t i, void* value);
+void*  vec_set_s(t_vec* vec, ssize_t i, void* value);
+bool   vec_get(t_vec* vec, void* dest, size_t i);
+bool   vec_get_s(t_vec* vec, void* dest, ssize_t i);
+void*  vec_push(t_vec* vec, void* value);
+void   vec_free(t_vec* vec, void (*del)(void*));
+void   vec_shift(t_vec* vec, void (*del)(void*));
+void   vec_pop(t_vec* vec, void (*del)(void*));
+
 double length(t_vec3 v);
 double dot(t_vec3 a, t_vec3 b);
 t_vec3 cross(t_vec3 a, t_vec3 b);
@@ -26,6 +45,7 @@ t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
 double distance2(t_vec3 a, t_vec3 b);
 double distance(t_vec3 a, t_vec3 b);
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
+t_vec3 vec3(double x, double y, double z);
 
 typedef union u_rsqrt
 {

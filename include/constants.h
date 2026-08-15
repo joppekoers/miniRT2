@@ -60,6 +60,22 @@ int	   get_number_of_threads();
 		assert(x); \
 	};
 
+// crude macro TODO: improve
+#define EXIT_WITH_ERROR(...) \
+	do \
+	{ \
+		fprintf(stderr, "Function: "); \
+		fprintf(stderr, __func__); \
+		fprintf(stderr, "(...)\nFile:     ./"); \
+		fprintf(stderr, __FILE__); \
+		fprintf(stderr, ":"); \
+		fprintf(stderr, "%d", __LINE__); \
+		fprintf(stderr, "\nMessage:  "); \
+		fprintf(stderr, __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+		exit(EXIT_FAILURE); \
+	} while (0)
+
 typedef enum e_shape
 {
 	SHAPE_SPHERE,
@@ -142,15 +158,13 @@ typedef struct s_aabb
 {
 	t_vec3 min;
 	t_vec3 max;
-
 } t_aabb;
+
 typedef struct s_octree
 {
-	struct s_octree* children[8];
-	uint8_t			 children_count;
-	t_aabb			 aabb;
-	t_arr*			 objects;
-
+	t_arr* children;
+	t_aabb aabb;
+	t_arr* objects;
 } t_octree;
 
 typedef struct s_gui
