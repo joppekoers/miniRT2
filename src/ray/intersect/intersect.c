@@ -18,7 +18,7 @@
 
 t_vec3 correct_normal(t_vec3 normal, t_ray ray)
 {
-	if (dot(&normal, &ray.dir) > EPSILON)
+	if (dot(normal, ray.dir) > EPSILON)
 		normal = scale(normal, -1);
 	return (normal);
 }

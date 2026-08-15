@@ -22,9 +22,9 @@ static bool get_intersections(double* t0, double* t1, t_sphere sp, t_ray ray)
 	t_quadratic q;
 
 	l = subtract(ray.origin, sp.origin);
-	q.a = dot(&ray.dir, &ray.dir);
-	q.b = 2 * dot(&ray.dir, &l);
-	q.c = dot(&l, &l) - sp.radius2;
+	q.a = dot(ray.dir, ray.dir);
+	q.b = 2 * dot(ray.dir, l);
+	q.c = dot(l, l) - sp.radius2;
 	return (solve_quadratic(q, t0, t1));
 }
 
