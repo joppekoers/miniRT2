@@ -30,12 +30,21 @@ LINKSRC			= -lm -lpthread
 LINKS			= $(LINKSRC) -L$(LIBDIR)/$(MLXDIR) -lmlx -lXext -lX11
 LIBS			= $(LIBDIR)/minilibx-linux/libmlx.a \
 				  $(LIBDIR)/libft/bin/libft.a
+OPEN			= xdg-open
+# uses perf, may need: sudo sysctl kernel.perf_event_paranoid=1
+FLAMEFLAGS		=
 else
 MLXDIR			= minilibx_mms_20200219/
 LINKSRC			=
 LINKS			=
 LIBS			= $(LIBDIR)/libft/bin/libft.a libmlx.dylib
+OPEN			= open
+# dtrace always needs root on macOS, --root makes flamegraph use sudo
+FLAMEFLAGS		= --root
 endif
+
+FLAMEGRAPH		= $(shell command -v flamegraph 2>/dev/null \
+					|| echo $(HOME)/.cargo/bin/flamegraph)
 
 HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h')
 SRC				= $(shell find $(SRCDIR) -type f -name '*.c')
@@ -50,7 +59,15 @@ TESTRT			= rt/dragon.rt
 
 VPATH = $(shell find $(SRCDIR) -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
+# objects built with different flags (debug, flame) share $(BUILDDIR),
+# so wipe it whenever CFLAGS changed since the last build
 all:
+	@mkdir -p $(BUILDDIR)
+	@if [ "$$(cat $(BUILDDIR)/.cflags 2>/dev/null)" != "$(CFLAGS)" ]; then \
+		/bin/rm -rf $(BUILDDIR); \
+		mkdir -p $(BUILDDIR); \
+		echo "$(CFLAGS)" > $(BUILDDIR)/.cflags; \
+	fi
 	make -j14 $(NAME)
 
 
@@ -83,7 +100,7 @@ clean:
 ifneq ($(BUILDDIR),.)
 	/bin/rm -rf $(BUILDDIR)/
 endif
-	/bin/rm -rf obj_asan/
+	/bin/rm -f perf.data perf.data.old
 
 fclean:
 	$(MAKE) clean
@@ -109,7 +126,7 @@ SANITIZE = -fsanitize=address -g
 
 debug:
 	@/bin/rm -f $(NAME)
-	@$(MAKE) all BUILDDIR=obj_asan CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
+	@$(MAKE) all CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@open scene.bmp
 
@@ -118,6 +135,13 @@ standard:
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@open scene.bmp
+
+flame:
+	@test -x "$(FLAMEGRAPH)" || { echo "flamegraph not found, install with: cargo install flamegraph"; exit 1; }
+	@/bin/rm -f $(NAME)
+	@$(MAKE) all CFLAGS="$(CFLAGS) -g -fno-omit-frame-pointer" > /dev/null
+	$(FLAMEGRAPH) $(FLAMEFLAGS) -o flame.svg -- ./$(NAME) $(TESTRT) --save
+	@$(OPEN) flame.svg
 
 rt:
 	@$(MAKE) all > /dev/null
@@ -133,4 +157,4 @@ rttest:
 -exec mv scene.bmp {}.bmp \; \
 -exec echo "" \;
 
-.PHONY: all clean fclean re silent eval evalclean rt rtall format
+.PHONY: all clean fclean re silent eval evalclean rt rtall format debug standard flame rttest
