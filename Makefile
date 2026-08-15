@@ -140,7 +140,9 @@ flame:
 	@test -x "$(FLAMEGRAPH)" || { echo "flamegraph not found, install with: cargo install flamegraph"; exit 1; }
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all CFLAGS="$(CFLAGS) -g -fno-omit-frame-pointer" > /dev/null
-	$(FLAMEGRAPH) $(FLAMEFLAGS) -o flame.svg -- ./$(NAME) $(TESTRT) --save
+	$(FLAMEGRAPH) $(FLAMEFLAGS) \
+		--post-process "perl -ne '(\$$k, \$$v) = /^(.*) (\d+)\$$/; 1 while \$$k =~ s/(^|;)([^;]+);\2(?=;|\$$)/\$$1\$$2/; \$$h{\$$k} += \$$v; END { print qq(\$$_ \$$h{\$$_}\n) for sort keys %h }'" \
+		-o flame.svg -- ./$(NAME) $(TESTRT) --save
 	@$(OPEN) flame.svg
 
 rt:
