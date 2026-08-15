@@ -4,7 +4,7 @@
 #include "intersect.h"
 #include "vector.h"
 
-#define OCTREE_MAX_DEPTH 32
+#define OCTREE_MAX_DEPTH 10
 
 // To init the root of a octree, only use on initial creation
 t_octree octree(t_aabb aabb, size_t objects)

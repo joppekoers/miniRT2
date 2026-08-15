@@ -80,9 +80,13 @@ void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
 	gui->mlx = mlx_init();
 	if (gui->mlx == NULL)
 		exit_e("mlx_init() failed");
+	double timer = timer_now();
 	parse_rt(gui, rt_filename);
+	timer_print("Parse .rt", timer);
 #ifdef USE_OCTREE
+	timer = timer_now();
 	gui->octree = octree_from_objects(gui->shapes);
+	timer_print("Build octree", timer);
 #endif
 	set_canvas(&gui->canvas, gui, create_window);
 	if (create_window)

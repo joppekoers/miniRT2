@@ -95,6 +95,7 @@ static void start_threads(t_thread* threads, t_gui* gui, pthread_mutex_t* row_to
 
 void render(t_gui* gui)
 {
+	const double	timer = timer_now();
 	const size_t	thread_count = (size_t)get_number_of_threads();
 	t_thread		threads[thread_count];
 	size_t			i;
@@ -110,4 +111,5 @@ void render(t_gui* gui)
 		i++;
 	}
 	pthread_mutex_destroy(&row_to_render_lock);
+	timer_print("Render", timer);
 }

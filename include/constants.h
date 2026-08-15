@@ -48,6 +48,9 @@ void   test();
 
 int	   get_number_of_threads();
 
+double timer_now(void);
+void   timer_print(const char* label, double start);
+
 #define min2(a, b) ((a) < (b)) ? (a) : (b)
 #define max2(a, b) ((a) > (b)) ? (a) : (b)
 

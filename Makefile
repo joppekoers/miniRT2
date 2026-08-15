@@ -107,9 +107,16 @@ silent:
 
 SANITIZE = -fsanitize=address -g
 
-standard:
+debug:
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all BUILDDIR=obj_asan CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
+	@./$(NAME) $(TESTRT) --save
+	@echo $(TESTRT)
+	@open scene.bmp
+
+standard:
+	@/bin/rm -f $(NAME)
+	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@echo $(TESTRT)
 	@open scene.bmp
