@@ -83,6 +83,7 @@ clean:
 ifneq ($(BUILDDIR),.)
 	/bin/rm -rf $(BUILDDIR)/
 endif
+	/bin/rm -rf obj_asan/
 
 fclean:
 	$(MAKE) clean
@@ -104,8 +105,11 @@ format:
 silent:
 	@$(MAKE) all > /dev/null
 
+SANITIZE = -fsanitize=address -g
+
 standard:
-	@$(MAKE) all > /dev/null
+	@/bin/rm -f $(NAME)
+	@$(MAKE) all BUILDDIR=obj_asan CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
 	@./$(NAME) $(TESTRT) --save
 	@echo $(TESTRT)
 	@open scene.bmp

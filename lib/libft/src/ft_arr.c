@@ -73,7 +73,7 @@ void	*ft_arr_get(const t_arr *arr, size_t i)
 {
 	if (arr == NULL)
 		return (NULL);
-	if (i > arr->length - 1)
+	if (i >= arr->length)
 		return (NULL);
 	return (arr->table[arr->start_i + i]);
 }
