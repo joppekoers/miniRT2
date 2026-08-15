@@ -33,8 +33,12 @@ void bounce_nobounce(t_bounce* b)
 
 // Get closest t_obj * (relative to ray.origin) from *shapes
 
-t_bounce get_bounce(const t_arr* shapes, t_ray ray)
+t_bounce get_bounce(const t_gui* gui, t_ray ray)
 {
+#ifdef USE_OCTREE
+	return octree_bounce(&gui->octree, &ray);
+#else
+
 	size_t	 i;
 	t_obj*	 obj;
 	t_hit	 hit;
@@ -42,24 +46,25 @@ t_bounce get_bounce(const t_arr* shapes, t_ray ray)
 
 	i = 0;
 	bounce_nobounce(&bounce);
-	while (ft_arr_get(shapes, i) != NULL)
+	while (ft_arr_get(gui->shapes, i) != NULL)
 	{
-		obj = ft_arr_get(shapes, i);
+		obj = ft_arr_get(gui->shapes, i);
 		hit = hit_obj(obj->shape, obj->pos, ray);
 		if (hit.hit && hit.dist < bounce.distance)
 			bounce_assign(&bounce, &hit, obj);
 		i++;
 	}
 	return (bounce);
+#endif
 }
 
 // Add light from *light to *l
 
-static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const t_arr* shapes)
+static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const t_gui* gui)
 {
 	double intensity;
 
-	if (!is_clear_path(bounce, light, shapes))
+	if (!is_clear_path(bounce, light, gui))
 		return;
 	intensity = relative_intensity(bounce.point, bounce.normal, light);
 	*l = add_color(*l, light->color, intensity);
@@ -81,11 +86,7 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 	t_rgb	 l;
 	t_bounce bounce;
 
-#ifdef USE_OCTREE
-	bounce = octree_bounce(&gui->octree, &ray);
-#else
-	bounce = get_bounce(gui->shapes, ray);
-#endif
+	bounce = get_bounce(gui, ray);
 
 	if (bounce.obj == NULL)
 		return debug_overlay(ray, gui, no_bounce());
@@ -93,7 +94,7 @@ t_rgb ray_to_color(t_ray ray, const t_gui* gui)
 	l = gui->ambient.scalar;
 	while (ft_arr_get(gui->lights, i) != NULL)
 	{
-		merge_lights(&l, ft_arr_get(gui->lights, i), bounce, gui->shapes);
+		merge_lights(&l, ft_arr_get(gui->lights, i), bounce, gui);
 		i++;
 	}
 	return debug_overlay(ray, gui, mix_color(l, bounce.color));
