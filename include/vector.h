@@ -13,26 +13,18 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "constants.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include "../lib/libft/include/libft.h"
 
-typedef struct s_vec
+typedef struct s_vec3
 {
-	size_t	 start_i;
-	size_t	 length;
-	size_t	 byte_size;
-	size_t	 element_size;
-	uint8_t* table;
-} t_vec;
-
-t_vec  vec(size_t elements, size_t element_size);
-void*  vec_set(t_vec* vec, size_t i, void* value);
-void*  vec_set_s(t_vec* vec, ssize_t i, void* value);
-bool   vec_get(t_vec* vec, void* dest, size_t i);
-bool   vec_get_s(t_vec* vec, void* dest, ssize_t i);
-void*  vec_push(t_vec* vec, void* value);
-void   vec_free(t_vec* vec, void (*del)(void*));
-void   vec_shift(t_vec* vec, void (*del)(void*));
-void   vec_pop(t_vec* vec, void (*del)(void*));
+	double x;
+	double y;
+	double z;
+} t_vec3;
 
 double length(t_vec3 v);
 double dot(t_vec3 a, t_vec3 b);
@@ -46,13 +38,32 @@ double distance2(t_vec3 a, t_vec3 b);
 double distance(t_vec3 a, t_vec3 b);
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
 t_vec3 vec3(double x, double y, double z);
+void   normalize(t_vec3* v);
+
+typedef struct s_vec
+{
+	size_t	 start_i;
+	size_t	 length;
+	size_t	 byte_size;
+	size_t	 element_size;
+	uint8_t* table;
+} t_vec;
+
+t_vec vec(size_t elements, size_t element_size);
+void* vec_set(t_vec* vec, size_t i, void* value);
+void* vec_set_s(t_vec* vec, ssize_t i, void* value);
+bool  vec_get(const t_vec* vec, void* dest, size_t i);
+bool  vec_gets(const t_vec* vec, void* dest, ssize_t i);
+void* vec_getp(const t_vec* vec, size_t i);
+void* vec_push(t_vec* vec, void* value);
+void  vec_free(t_vec* vec, void (*del)(void*));
+void  vec_shift(t_vec* vec, void (*del)(void*));
+void  vec_pop(t_vec* vec, void (*del)(void*));
 
 typedef union u_rsqrt
 {
 	double	 f;
 	uint64_t i;
 } t_rsqrt;
-
-void normalize(t_vec3* v);
 
 #endif

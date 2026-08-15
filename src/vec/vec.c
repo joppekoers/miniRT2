@@ -12,9 +12,7 @@ t_vec vec(size_t elements, size_t element_size)
 
 	if (elements == 0)
 		elements = 100;
-	debug_assert(element_size);
-
-	vec.table = malloc_safe(elements * element_size);
+	vec.table = malloc(elements * element_size);
 	vec.start_i = 0;
 	vec.length = 0;
 	vec.byte_size = elements * element_size;
@@ -30,7 +28,7 @@ static void grow(t_vec* vec, size_t min_byte_size)
 		new_size *= 2;
 	} while (new_size < min_byte_size);
 
-	void* new = malloc_safe(new_size);
+	void* new = malloc(new_size);
 	ft_memcpy(new, vec->table + (vec->start_i * vec->element_size), (vec->length * vec->element_size));
 	free(vec->table);
 	vec->table = new;
@@ -58,7 +56,7 @@ void* vec_set_s(t_vec* vec, ssize_t i, void* value)
 	return vec_set(vec, i, value);
 }
 
-bool vec_get(t_vec* vec, void* dest, size_t i)
+bool vec_get(const t_vec* vec, void* dest, size_t i)
 {
 	if (i >= vec->length)
 		return false;
@@ -66,7 +64,14 @@ bool vec_get(t_vec* vec, void* dest, size_t i)
 	return true;
 }
 
-bool vec_get_s(t_vec* vec, void* dest, ssize_t i)
+void* vec_getp(const t_vec* vec, size_t i)
+{
+	if (i >= vec->length)
+		return NULL;
+	return table_byte(vec, i);
+}
+
+bool vec_gets(const t_vec* vec, void* dest, ssize_t i)
 {
 	if (i < 0)
 		i = vec->length + i;

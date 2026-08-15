@@ -70,21 +70,45 @@ bool aabb_intersects(const t_aabb* aabb, const t_ray* ray)
 }
 
 // To init the root of a octree, only use on initial creation
-void octree_root(t_octree* octree)
+t_octree octree(t_aabb aabb, size_t objects)
 {
-	ft_bzero(octree, sizeof(t_octree));
-	octree->aabb.min = (t_vec3){
+	t_octree octree;
+	ft_bzero(&octree, sizeof(t_octree));
+	octree.aabb = aabb;
+	// octree.children = vec(8, sizeof(t_octree));
+	octree.objects = ft_arr(objects);
+	return octree;
+}
+
+t_octree octree_root(size_t objects)
+{
+	const t_vec3 min = {
 			.x = -DBL_MAX,
 			.y = -DBL_MAX,
 			.z = -DBL_MAX,
 	};
-	octree->aabb.max = (t_vec3){
+	const t_vec3 max = {
 			.x = DBL_MAX,
 			.y = DBL_MAX,
 			.z = DBL_MAX,
 	};
-	//
-	octree->objects = ft_arr(10000);
+	return octree(aabb_vec(min, max), objects);
+}
+
+t_octree octree_from_objects(t_arr* objects)
+{
+	t_octree root = octree_root(objects->length);
+	t_obj*	 obj;
+	size_t	 i = 0;
+	while ((obj = ft_arr_get(objects, i++)))
+	{
+		debug_assert(octree_add_obj(&root, obj));
+	}
+	// The root octree node is infinitely large, so subdividing would do nothing without shrinking first
+	octree_shrink_to_fit(&root);
+
+	octree_subdivide(&root);
+	return root;
 }
 
 // Returns true if it fits inside the octree's aabb
@@ -97,6 +121,7 @@ bool octree_add_obj(t_octree* octree, t_obj* obj)
 	return true;
 }
 
+// todo
 void octree_shrink_to_fit(t_octree* octree)
 {
 	t_vec3 min = octree->aabb.min;
@@ -147,69 +172,92 @@ t_bounce octree_bounce(const t_octree* octree, const t_ray* ray)
 	}
 
 	// TODO: this is not ignoring the aabbs that are further away than the closest_dist, that would never hit
-	// for (uint8_t i = 0; i++; i < octree->children_count)
-	// {
-	// 	t_bounce b = octree_bounce(octree->children[i], ray);
-	// 	double	 d = distance(ray->origin, b.point);
-	// 	if (b.obj && d < closest_dist)
-	// 		bounce = b;
-	// }
+	{
+		t_octree* child;
+		size_t	  i = 0;
+		while ((child = vec_getp(&octree->children, i++)))
+		{
+			t_bounce b = octree_bounce(child, ray);
+			double	 d = distance(ray->origin, b.point); // TODO: use distance2
+			if (b.obj && d < closest_dist)
+				bounce = b;
+		}
+	}
 
 	return bounce;
 }
 
-// build the entire tree, subdivide the children all the way down
-bool octree_subdivide(t_octree* octree)
+// creates 8 children for the octree, subdividing them equally
+void make_children(t_octree* o)
 {
-	(void)octree;
-	return true;
-	// t_arr* objects = octree->objects;
+	const t_vec3 min = o->aabb.min;
+	const t_vec3 max = o->aabb.max;
+	const t_vec3 center = scale(add(min, max), 0.5);
+	const size_t objects = o->objects->length / 8;
+	t_octree new;
 
-	// if (objects->length < 100)
-	// 	return false;
+	o->children = vec(8, sizeof(t_octree));
+	new = octree(aabb_vec(min, center), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(center.x, min.y, min.z), vec3(max.x, center.y, center.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(min.x, center.y, min.z), vec3(center.x, max.y, center.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(center.x, center.y, min.z), vec3(max.x, max.y, center.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(min.x, min.y, center.z), vec3(center.x, center.y, max.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(center.x, min.y, center.z), vec3(max.x, center.y, max.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(vec3(min.x, center.y, center.z), vec3(center.x, max.y, max.z)), objects);
+	vec_push(&o->children, &new);
+	new = octree(aabb_vec(center, max), objects);
+	vec_push(&o->children, &new);
+}
 
-	// const t_vec3 min = octree->aabb.min;
-	// const t_vec3 max = octree->aabb.max;
-	// const t_vec3 center = scale(add(min, max), 0.5);
+void move_objects_to_children(t_octree* o)
+{
+	t_arr*	  objects = o->objects;
+	size_t	  i = objects->length;
+	t_obj*	  obj;
+	t_octree* child;
 
-	// octree->children[0]->aabb = aabb_vec(min, center);
-	// octree->children[1]->aabb = aabb_vec(vec3(center.x, min.y, min.z), vec3(max.x, center.y, center.z));
-	// octree->children[2]->aabb = aabb_vec(vec3(min.x, center.y, min.z), vec3(center.x, max.y, center.z));
-	// octree->children[3]->aabb = aabb_vec(vec3(center.x, center.y, min.z), vec3(max.x, max.y, center.z));
-	// octree->children[4]->aabb = aabb_vec(vec3(min.x, min.y, center.z), vec3(center.x, center.y, max.z));
-	// octree->children[5]->aabb = aabb_vec(vec3(center.x, min.y, center.z), vec3(max.x, center.y, max.z));
-	// octree->children[6]->aabb = aabb_vec(vec3(min.x, center.y, center.z), vec3(center.x, max.y, max.z));
-	// octree->children[7]->aabb = aabb_vec(center, max);
-	// octree->children_count = 8;
-	// sizeof (t_octree)
+	while (i && (obj = ft_arr_get(objects, --i)))
+	{
+		size_t _i = 0;
+		while ((child = vec_getp(&o->children, _i++)))
+		{
+			if (!obj_is_inside_aabb(obj, &child->aabb))
+				continue;
 
-	// size_t i = objects->length;
-	// t_obj* obj;
-	// while (i && (obj = ft_arr_get(objects, --i)))
-	// {
-	// 	for (size_t child_i = 0; child_i++; child_i < octree->children_count)
-	// 	{
-	// 		const child = octree->children[child_i];
+			ft_arr_push(&child->objects, obj);
 
-	// 		if (!obj_is_inside_aabb(obj, child))
-	// 			continue;
+			// the current obj is inserted into a child, so it should be removed from the current aabb
+			// we take the last obj that we have and set that at the current index
+			// this last element will always get popped
+			if (i + 1 != objects->length && objects->length)
+			{
+				void* last = ft_arr_get(objects, objects->length - 1);
+				ft_arr_set(&objects, i, last);
+			}
+			ft_arr_pop(&objects, NULL);
+		}
+	}
+}
 
-	// 		ft_arr_push(&child, obj);
+// build the entire tree, subdivide the children all the way down
+void octree_subdivide(t_octree* o)
+{
+	if (o->objects->length < 100)
+		return;
 
-	// 		// the current obj is inserted into a child, so it should be removed from the current aabb
-	// 		// we take the last obj that we have and set that at the current index
-	// 		// this last element will always get popped
-	// 		if (i + 1 != objects->length && objects->length)
-	// 		{
-	// 			void* last = ft_arr_get(&objects, objects->length - 1);
-	// 			ft_arr_set(&objects, i, last);
-	// 		}
-	// 		ft_arr_pop(&objects, NULL);
-	// 	}
-	// }
-	// for (size_t child_i = 0; child_i++; child_i < octree->children_count)
-	// {
-	// 	const child = octree->children[child_i];
-	// 	octree_subdivide(child);
-	// }
+	make_children(o);
+	move_objects_to_children(o);
+
+	t_octree* child;
+	size_t	  i = 0;
+	while ((child = vec_getp(&o->children, i++)))
+	{
+		octree_subdivide(child);
+	}
 }

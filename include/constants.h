@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <printf.h>
+#include "vector.h"
 
 #define DOUBLE_MAX 9999999999.0
 #define DOUBLE_MIN -9999999999.0
@@ -111,13 +112,6 @@ typedef struct s_rgb
 	uint8_t b;
 } t_rgb;
 
-typedef struct s_vec3
-{
-	double x;
-	double y;
-	double z;
-} t_vec3;
-
 typedef struct s_ray
 {
 	t_vec3 origin;
@@ -162,7 +156,7 @@ typedef struct s_aabb
 
 typedef struct s_octree
 {
-	t_arr* children;
+	t_vec  children; // type: t_octree
 	t_aabb aabb;
 	t_arr* objects;
 } t_octree;
@@ -259,8 +253,10 @@ bool	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
 t_aabb	 obj_get_aabb(const t_obj* obj);
 bool	 obj_is_inside_aabb(const t_obj* obj, const t_aabb* aabb);
 
-void	 octree_root(t_octree* octree);
-bool	 octree_subdivide(t_octree* octree);
+t_octree octree(t_aabb aabb, size_t objects);
+t_octree octree_root(size_t objects);
+t_octree octree_from_objects(t_arr* objects);
+void	 octree_subdivide(t_octree* octree);
 bool	 octree_add_obj(t_octree* octree, t_obj* obj);
 void	 octree_shrink_to_fit(t_octree* octree);
 t_bounce octree_bounce(const t_octree* octree, const t_ray* ray);
