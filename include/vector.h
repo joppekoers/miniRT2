@@ -35,13 +35,13 @@ double length(const t_vec3* v);
 #define add(a, b) ((t_vec3){(a).x + (b).x, (a).y + (b).y, (a).z + (b).z})
 #define subtract(a, b) ((t_vec3){(a).x - (b).x, (a).y - (b).y, (a).z - (b).z})
 #define scale(v, r) ((t_vec3){(v).x * r, (v).y * r, (v).z * r})
+#define vec3(x, y, z) ((t_vec3){x, y, z})
 
 t_vec3 unit(t_vec3 v);
 t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
 double distance2(const t_vec3* a, const t_vec3* b);
 double distance(const t_vec3* a, const t_vec3* b);
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
-t_vec3 vec3(double x, double y, double z);
 void   normalize(t_vec3* v);
 
 typedef struct s_vec
