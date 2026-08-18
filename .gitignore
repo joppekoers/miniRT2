@@ -8,6 +8,7 @@ a.out
 test/
 scene.*
 .vscode/
+.DS_Store*
 
 # swift
 *.dylib
