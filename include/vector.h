@@ -27,8 +27,6 @@ typedef struct s_vec3
 	double z;
 } t_vec3;
 
-double length(const t_vec3* v);
-
 #define dot(a, b) ((a).x * (b).x + (a).y * (b).y + (a).z * (b).z)
 #define cross(a, b) \
 	((t_vec3){(a).y * (b).z - (a).z * (b).y, (a).z * (b).x - (a).x * (b).z, (a).x * (b).y - (a).y * (b).x})
@@ -44,11 +42,21 @@ double length(const t_vec3* v);
 		(v)->y *= i; \
 		(v)->z *= i; \
 	})
+#define unit(v) \
+	({ \
+		t_vec3 u = (v); \
+		normalize(&u); \
+		u; \
+	})
+#define length(v) (sqrt(dot(*(v), *(v))))
+#define translate(origin, dir, t) (add(origin, scale(dir, t)))
+#define distance2(a, b) \
+	({ \
+		const t_vec3 ab = subtract(*(a), *(b)); \
+		ab.x * ab.x + ab.y * ab.y + ab.z * ab.z; \
+	})
+#define distance(a, b) (sqrt(distance2(a, b)))
 
-t_vec3 unit(t_vec3 v);
-t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
-double distance2(const t_vec3* a, const t_vec3* b);
-double distance(const t_vec3* a, const t_vec3* b);
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
 
 typedef struct s_vec

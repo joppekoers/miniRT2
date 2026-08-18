@@ -14,11 +14,6 @@
 #include "constants.h"
 #include <math.h>
 
-inline double length(const t_vec3* v)
-{
-	return (sqrt(v->x * v->x + v->y * v->y + v->z * v->z));
-}
-
 // see doc/project_on_line.png
 // a = p
 // b = line0
