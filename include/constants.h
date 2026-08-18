@@ -18,6 +18,9 @@
 #include <stdbool.h>
 #include <sys/types.h>
 #include <stdint.h>
+#include <assert.h>
+#include <printf.h>
+#include "vector.h"
 
 #define DOUBLE_MAX 9999999999.0
 #define DOUBLE_MIN -9999999999.0
@@ -33,12 +36,45 @@
 #define NEXT_CAMERA_KEY 8
 #endif
 
-void  exit_e(const char* msg);
-void  exit_range(long num, long min, long max);
-void  exit_ranged(double num, double min, double max);
-void  exit_char(char got, char expected);
-void* malloc_safe(size_t size);
-void* calloc_safe(size_t size);
+void   exit_e(const char* msg) __attribute__((__noreturn__));
+void   exit_range(long num, long min, long max);
+void   exit_ranged(double num, double min, double max);
+void   exit_char(char got, char expected);
+void*  malloc_safe(size_t size);
+void*  calloc_safe(size_t size);
+double max_double(int n, ...);
+double min_double(int n, ...);
+void   test();
+
+int	   get_number_of_threads();
+
+double timer_now(void);
+void   timer_print(const char* label, double start);
+
+#define min2(a, b) ((a) < (b)) ? (a) : (b)
+#define max2(a, b) ((a) > (b)) ? (a) : (b)
+
+#define min3(a, b, c) ((a) < (b)) ? (((a) < (c)) ? (a) : (c)) : (((b) < (c)) ? (b) : (c))
+#define max3(a, b, c) ((a) > (b)) ? (((a) > (c)) ? (a) : (c)) : (((b) > (c)) ? (b) : (c))
+
+#define DEBUG 1
+#define debug_assert(x) (DEBUG) ? assert(x) : (x)
+
+// crude macro TODO: improve
+#define EXIT_WITH_ERROR(...) \
+	do \
+	{ \
+		fprintf(stderr, "Function: "); \
+		fprintf(stderr, __func__); \
+		fprintf(stderr, "(...)\nFile:     ./"); \
+		fprintf(stderr, __FILE__); \
+		fprintf(stderr, ":"); \
+		fprintf(stderr, "%d", __LINE__); \
+		fprintf(stderr, "\nMessage:  "); \
+		fprintf(stderr, __VA_ARGS__); \
+		fprintf(stderr, "\n"); \
+		exit(EXIT_FAILURE); \
+	} while (0)
 
 typedef enum e_shape
 {
@@ -74,13 +110,6 @@ typedef struct s_rgb
 	uint8_t g;
 	uint8_t b;
 } t_rgb;
-
-typedef struct s_vec3
-{
-	double x;
-	double y;
-	double z;
-} t_vec3;
 
 typedef struct s_ray
 {
@@ -118,11 +147,29 @@ typedef struct s_light
 	t_rgb  color;
 } t_light;
 
+typedef struct s_aabb
+{
+	t_vec3 min;
+	t_vec3 max;
+} t_aabb;
+
+typedef struct s_octree
+{
+	t_vec  children; // type: t_octree
+	t_aabb aabb;
+	t_vec  objects; // type: t_obj
+} t_octree;
+
 typedef struct s_gui
 {
-	t_arr*		 shapes;
-	t_arr*		 lights;
-	t_arr*		 cameras;
+	// holds all the objects in the scene
+	t_vec shapes; // type: t_obj
+
+#ifdef USE_OCTREE
+	t_octree octree;
+#endif
+	t_vec		 lights;  // type: t_light
+	t_vec		 cameras; // type: t_camera
 	size_t		 camera_i;
 	t_ambient	 ambient;
 	unsigned int x_size;
@@ -192,11 +239,31 @@ typedef struct s_hit
 
 typedef struct s_bounce
 {
-	t_obj* obj;
-	t_rgb  color;
-	t_vec3 point;
-	t_vec3 normal;
-	t_vec3 ray_origin;
+	const t_obj* obj;
+	t_rgb		 color;
+	t_vec3		 point;
+	t_vec3		 normal;
+	t_vec3		 ray_origin;
+	double		 distance;
 } t_bounce;
+
+void	 bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj);
+void	 bounce_nobounce(t_bounce* b);
+
+bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
+double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
+t_aabb	 aabb_vec(t_vec3 min, t_vec3 max);
+t_aabb	 aabb_double(double min_x, double min_y, double min_z, double max_x, double max_y, double max_z);
+
+t_aabb	 obj_get_aabb(const t_obj* obj);
+bool	 obj_is_inside_aabb(const t_obj* obj, const t_aabb* aabb);
+
+t_octree octree(t_aabb aabb, size_t objects);
+t_octree octree_root(size_t objects);
+t_octree octree_from_objects(const t_vec* objects);
+void	 octree_subdivide(t_octree* octree);
+bool	 octree_add_obj(t_octree* octree, t_obj* obj);
+void	 octree_shrink_to_fit(t_octree* octree);
+t_bounce octree_bounce(const t_octree* octree, const t_ray* ray);
 
 #endif

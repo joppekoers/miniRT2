@@ -23,25 +23,25 @@ static bool same_point(t_vec3 p1, t_vec3 p2, double epsilon)
 
 // Pointing a new ray to hitpoint, form origin *l
 
-t_bounce bounce_from_light(t_vec3 hitpoint, const t_light* l, const t_arr* shapes)
+t_bounce bounce_from_light(t_vec3 hitpoint, const t_light* l, const t_gui* gui)
 {
 	t_bounce from_light;
 	t_ray	 ray;
 
 	ray.origin = l->origin;
 	ray.dir = unit(subtract(hitpoint, l->origin));
-	from_light = get_bounce(shapes, ray);
+	from_light = get_bounce(gui, ray);
 	return (from_light);
 }
 
 // If there is a clear path the detected bounce, and the light *l
 // Assuming from_camera has bounced
 
-bool is_clear_path(t_bounce from_camera, const t_light* l, const t_arr* shapes)
+bool is_clear_path(t_bounce from_camera, const t_light* l, const t_gui* gui)
 {
 	t_bounce from_light;
 
-	from_light = bounce_from_light(from_camera.point, l, shapes);
+	from_light = bounce_from_light(from_camera.point, l, gui);
 	if (from_light.obj == NULL)
 		return (false);
 	if (from_camera.obj != from_light.obj)

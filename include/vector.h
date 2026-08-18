@@ -13,26 +13,76 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 
-#include "constants.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <sys/types.h>
+#include "../lib/libft/include/libft.h"
+#include <math.h>
 
-double length(t_vec3 v);
-double dot(t_vec3 a, t_vec3 b);
-t_vec3 cross(t_vec3 a, t_vec3 b);
-t_vec3 add(t_vec3 a, t_vec3 b);
-t_vec3 subtract(t_vec3 a, t_vec3 b);
-t_vec3 scale(t_vec3 v, double r);
-t_vec3 unit(t_vec3 v);
-t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
-double distance2(t_vec3 a, t_vec3 b);
-double distance(t_vec3 a, t_vec3 b);
+typedef struct s_vec3
+{
+	double x;
+	double y;
+	double z;
+} t_vec3;
+
+#define dot(a, b) ((a).x * (b).x + (a).y * (b).y + (a).z * (b).z)
+#define cross(a, b) \
+	((t_vec3){(a).y * (b).z - (a).z * (b).y, (a).z * (b).x - (a).x * (b).z, (a).x * (b).y - (a).y * (b).x})
+
+#define add(a, b) ((t_vec3){(a).x + (b).x, (a).y + (b).y, (a).z + (b).z})
+#define subtract(a, b) ((t_vec3){(a).x - (b).x, (a).y - (b).y, (a).z - (b).z})
+#define scale(v, r) ((t_vec3){(v).x * r, (v).y * r, (v).z * r})
+#define vec3(x, y, z) ((t_vec3){x, y, z})
+#define normalize(v) \
+	({ \
+		const double i = 1.0 / sqrt((v)->x * (v)->x + (v)->y * (v)->y + (v)->z * (v)->z); \
+		(v)->x *= i; \
+		(v)->y *= i; \
+		(v)->z *= i; \
+	})
+#define unit(v) \
+	({ \
+		t_vec3 u = (v); \
+		normalize(&u); \
+		u; \
+	})
+#define length(v) (sqrt(dot(*(v), *(v))))
+#define translate(origin, dir, t) (add(origin, scale(dir, t)))
+#define distance2(a, b) \
+	({ \
+		const t_vec3 ab = subtract(*(a), *(b)); \
+		ab.x * ab.x + ab.y * ab.y + ab.z * ab.z; \
+	})
+#define distance(a, b) (sqrt(distance2(a, b)))
+
 t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1);
+
+typedef struct s_vec
+{
+	size_t	 start_i;
+	size_t	 length;
+	size_t	 byte_size;
+	size_t	 element_size;
+	uint8_t* table;
+} t_vec;
+
+t_vec vec(size_t elements, size_t element_size);
+void* vec_set(t_vec* vec, size_t i, void* value);
+void* vec_set_s(t_vec* vec, ssize_t i, void* value);
+bool  vec_get(const t_vec* vec, void* dest, size_t i);
+bool  vec_gets(const t_vec* vec, void* dest, ssize_t i);
+void* vec_getp(const t_vec* vec, size_t i);
+void* vec_push(t_vec* vec, void* value);
+void  vec_free(t_vec* vec, void (*del)(void*));
+void  vec_shift(t_vec* vec, void (*del)(void*));
+void  vec_pop(t_vec* vec, void (*del)(void*));
 
 typedef union u_rsqrt
 {
 	double	 f;
 	uint64_t i;
 } t_rsqrt;
-
-void normalize(t_vec3* v);
 
 #endif

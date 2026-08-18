@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 
 // Main program consists of 2 modes:
 // 1 open X11 window and switch between cameras
@@ -27,12 +28,16 @@ int main(int argc, const char* argv[])
 {
 	t_gui gui;
 
+	test();
+
 	if (argc == 3 && ft_strcmp((char*)argv[2], "--save") == 0)
 	{
+		const double timer = timer_now();
 		gui_init(&gui, argv[1], false);
 		render(&gui);
 		if (save_bmp(&gui) != 0)
 			exit_e(strerror(errno));
+		timer_print("Total", timer);
 		exit_success(&gui);
 	}
 	else if (argc == 2)

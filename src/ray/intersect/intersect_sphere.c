@@ -52,7 +52,7 @@ t_hit hit_sphere(t_pos pos, t_ray ray)
 		return ((t_hit){false});
 	hit.hit = true;
 	hit.point = translate(ray.origin, ray.dir, hit.dist);
-	if (distance2(ray.origin, pos.sp.origin) > pos.sp.radius2)
+	if (distance2(&ray.origin, &pos.sp.origin) > pos.sp.radius2)
 		hit.normal = unit(subtract(hit.point, pos.sp.origin));
 	else
 		hit.normal = unit(subtract(pos.sp.origin, hit.point));

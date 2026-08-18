@@ -43,7 +43,7 @@ void set_dir(t_vec3* dir, char* str)
 	dir->z = strtodbl_clamp(str, '\0', -1.0, 1.0);
 	if (!ALLOW_ABNORMAL_DIR)
 	{
-		len = length(*dir);
+		len = length(dir);
 		if (len < 0.9999 || len > 1.0001)
 		{
 			printf("Direction vector is not normalized (length %.10g)\n", len);

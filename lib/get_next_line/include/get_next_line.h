@@ -1,34 +1,24 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        ::::::::            */
-/*   vector.c                                           :+:    :+:            */
+/*   get_next_line.h                                    :+:    :+:            */
 /*                                                     +:+                    */
 /*   By: jkoers <jkoers@student.codam.nl>             +#+                     */
 /*                                                   +#+                      */
-/*   Created: 2021/01/08 15:59:04 by jkoers        #+#    #+#                 */
-/*   Updated: 2021/01/18 13:59:11 by jkoers        ########   odam.nl         */
+/*   Created: 2020/12/22 22:55:13 by jkoers        #+#    #+#                 */
+/*   Updated: 2020/12/22 22:56:22 by jkoers        ########   odam.nl         */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "vector.h"
-#include "constants.h"
-#include <math.h>
+#ifndef GET_NEXT_LINE_H
+# define GET_NEXT_LINE_H
 
-// see doc/project_on_line.png
-// a = p
-// b = line0
-// c = line1
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 4096
+# endif
+# include <stddef.h>
+# include <unistd.h>
 
-t_vec3 project_on_line(t_vec3 p, t_vec3 line0, t_vec3 line1)
-{
-	t_vec3 dir;
-	t_vec3 v;
-	double t;
-	t_vec3 p_on_line;
+int					get_next_line(int fd, char **line);
 
-	dir = unit(subtract(line1, line0));
-	v = subtract(p, line0);
-	t = dot(v, dir);
-	p_on_line = translate(line0, dir, t);
-	return (p_on_line);
-}
+#endif

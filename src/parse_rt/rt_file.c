@@ -15,7 +15,7 @@
 #include "../lib/libft/include/libft.h"
 #include <stdio.h>
 
-void log_shapes(const t_arr* shapes)
+void log_shapes(const t_vec* shapes)
 {
 	t_obj*		 obj;
 	size_t		 i;
@@ -24,9 +24,8 @@ void log_shapes(const t_arr* shapes)
 	i = 0;
 	ft_bzero(shape_n, sizeof(shape_n));
 	printf("Shapes found:\n");
-	while (ft_arr_get(shapes, i) != NULL)
+	while ((obj = vec_getp(shapes, i)) != NULL)
 	{
-		obj = ft_arr_get(shapes, i);
 		shape_n[obj->shape] += 1;
 		i++;
 	}
@@ -100,5 +99,5 @@ void parse_rt(t_gui* gui, const char* rt_filename)
 	}
 	ft_free_until_null_char(rt);
 	if (VERBOSE)
-		log_shapes(gui->shapes);
+		log_shapes(&gui->shapes);
 }
