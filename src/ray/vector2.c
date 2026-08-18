@@ -14,18 +14,6 @@
 #include "constants.h"
 #include <math.h>
 
-// = a - b || to, from
-
-inline t_vec3 subtract(t_vec3 a, t_vec3 b)
-{
-	t_vec3 v;
-
-	v.x = a.x - b.x;
-	v.y = a.y - b.y;
-	v.z = a.z - b.z;
-	return (v);
-}
-
 inline t_vec3 scale(t_vec3 v, double r)
 {
 	t_vec3 vec;
