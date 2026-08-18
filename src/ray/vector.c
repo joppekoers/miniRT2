@@ -19,16 +19,6 @@ inline double length(const t_vec3* v)
 	return (sqrt(v->x * v->x + v->y * v->y + v->z * v->z));
 }
 
-inline t_vec3 add(t_vec3 a, t_vec3 b)
-{
-	t_vec3 v;
-
-	v.x = a.x + b.x;
-	v.y = a.y + b.y;
-	v.z = a.z + b.z;
-	return (v);
-}
-
 // see doc/project_on_line.png
 // a = p
 // b = line0
