@@ -34,9 +34,8 @@ double length(const t_vec3* v);
 
 #define add(a, b) ((t_vec3){(a).x + (b).x, (a).y + (b).y, (a).z + (b).z})
 #define subtract(a, b) ((t_vec3){(a).x - (b).x, (a).y - (b).y, (a).z - (b).z})
-// #define scale(v, r) ((t_vec3){(v).x * r, (v).y * r, (v).z * r})
+#define scale(v, r) ((t_vec3){(v).x * r, (v).y * r, (v).z * r})
 
-t_vec3 scale(t_vec3 v, double r);
 t_vec3 unit(t_vec3 v);
 t_vec3 translate(t_vec3 origin, t_vec3 dir, double t);
 double distance2(const t_vec3* a, const t_vec3* b);

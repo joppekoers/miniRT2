@@ -14,16 +14,6 @@
 #include "constants.h"
 #include <math.h>
 
-inline t_vec3 scale(t_vec3 v, double r)
-{
-	t_vec3 vec;
-
-	vec.x = v.x * r;
-	vec.y = v.y * r;
-	vec.z = v.z * r;
-	return (vec);
-}
-
 // Get point t distance away from origin in direction of (normalized) dir
 
 t_vec3 translate(t_vec3 origin, t_vec3 dir, double t)
