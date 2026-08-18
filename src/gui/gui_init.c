@@ -74,21 +74,27 @@ static void open_window(t_gui* gui)
 	mlx_loop(gui->mlx);
 }
 
-void gui_init(t_gui* gui, const char* rt_filename, bool create_window)
+void gui_init(t_gui* gui, const char* filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
 	gui->shapes = vec(0, sizeof(t_obj));
 	gui->lights = vec(0, sizeof(t_light));
 	gui->cameras = vec(0, sizeof(t_camera));
 	if (DEBUG)
-		printf("%s\n", rt_filename);
+		printf("%s\n", filename);
 	double timer = timer_now();
 	gui->mlx = mlx_init();
 	if (gui->mlx == NULL)
 		exit_e("mlx_init() failed");
 	timer_print("mlx_init", timer);
 	timer = timer_now();
-	parse_rt(gui, rt_filename);
+
+	if (str_ends_with(filename, ".rt"))
+		parse_rt(gui, filename);
+	else if (str_ends_with(filename, ".obj"))
+		read_obj_file(gui, filename);
+	else
+		exit_e("File type not recognised, expect .rt or .obj;");
 	timer_print("Parse .rt", timer);
 #ifdef USE_OCTREE
 	timer = timer_now();

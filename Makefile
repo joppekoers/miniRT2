@@ -59,7 +59,7 @@ CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
 
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
-TESTRT			= rt/dragon.rt
+TEST_RENDER		= render/tree.obj
 
 VPATH = $(shell find $(SRCDIR) $(GNLDIR)/src -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
@@ -131,13 +131,13 @@ SANITIZE = -fsanitize=address -g
 debug:
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
-	@./$(NAME) $(TESTRT) --save
+	@./$(NAME) $(TEST_RENDER) --save
 	@open scene.bmp
 
 standard:
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all > /dev/null
-	@./$(NAME) $(TESTRT) --save
+	@./$(NAME) $(TEST_RENDER) --save
 	@open scene.bmp
 
 flame:
@@ -146,7 +146,7 @@ flame:
 	@$(MAKE) all CFLAGS="$(CFLAGS) -g -fno-omit-frame-pointer" > /dev/null
 	$(FLAMEGRAPH) $(FLAMEFLAGS) \
 		--post-process "perl -ne '(\$$k, \$$v) = /^(.*) (\d+)\$$/; 1 while \$$k =~ s/(^|;)([^;]+);\2(?=;|\$$)/\$$1\$$2/; \$$h{\$$k} += \$$v; END { print qq(\$$_ \$$h{\$$_}\n) for sort keys %h }'" \
-		-o flame.svg -- ./$(NAME) $(TESTRT) --save
+		-o flame.svg -- ./$(NAME) $(TEST_RENDER) --save
 	@$(OPEN) flame.svg
 
 rt:

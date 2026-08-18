@@ -1,5 +1,6 @@
 #include <stdarg.h>
 #include <stdio.h>
+#include "../../lib/libft/include/libft.h"
 
 double min_double(int n, ...)
 {
@@ -41,4 +42,16 @@ double max_double(int n, ...)
 
 	va_end(ap);
 	return max;
+}
+
+bool str_ends_with(const char* s, const char* end)
+{
+	size_t s_length = ft_strlen(s);
+	size_t end_length = ft_strlen(end);
+
+	if (end_length > s_length)
+		return false;
+	while (end_length && s[--s_length] == end[--end_length])
+		;
+	return end_length == 0;
 }

@@ -46,6 +46,8 @@ double max_double(int n, ...);
 double min_double(int n, ...);
 void   test();
 
+bool   str_ends_with(const char* s, const char* end);
+
 int	   get_number_of_threads();
 
 double timer_now(void);
@@ -168,7 +170,7 @@ typedef struct s_gui
 #ifdef USE_OCTREE
 	t_octree octree;
 #endif
-	t_vec		 lights;  // type: t_light
+	t_vec		 lights; // type: t_light
 	t_vec		 cameras; // type: t_camera
 	size_t		 camera_i;
 	t_ambient	 ambient;

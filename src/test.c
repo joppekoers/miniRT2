@@ -65,4 +65,11 @@ void test()
 		assert(out == 10);
 		assert(v.length == 1);
 	}
+	{
+		assert(str_ends_with("a", "a"));
+		assert(str_ends_with("ab", "a"));
+		assert(!str_ends_with("a", "ab"));
+		assert(!str_ends_with("a", "b"));
+		assert(str_ends_with("aab", "ab"));
+	}
 }

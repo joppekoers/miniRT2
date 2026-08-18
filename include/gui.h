@@ -25,4 +25,6 @@ void  gui_render_next_camera(t_gui* gui);
 void  exit_success(t_gui* gui);
 int	  save_bmp(const t_gui* gui);
 
+void  read_obj_file(t_gui* gui, const char* path);
+
 #endif
