@@ -46,9 +46,13 @@ endif
 FLAMEGRAPH		= $(shell command -v flamegraph 2>/dev/null \
 					|| echo $(HOME)/.cargo/bin/flamegraph)
 
+GNLDIR			= $(LIBDIR)/get_next_line
+GNLSRC			= $(shell find $(GNLDIR)/src -type f -name '*.c')
+GNLHEADERS		= $(shell find $(GNLDIR) -type f -name '*.h')
+
 HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h')
 SRC				= $(shell find $(SRCDIR) -type f -name '*.c')
-OBJ				= $(foreach src,$(SRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
+OBJ				= $(foreach src,$(SRC) $(GNLSRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
 
 CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
 					|| find $(HOME)/.vscode/extensions -type f -name clang-format 2>/dev/null | head -n 1)
@@ -57,7 +61,7 @@ STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
 TESTRT			= rt/dragon.rt
 
-VPATH = $(shell find $(SRCDIR) -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
+VPATH = $(shell find $(SRCDIR) $(GNLDIR)/src -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
 # objects built with different flags (debug, flame) share $(BUILDDIR),
 # so wipe it whenever CFLAGS changed since the last build
@@ -77,8 +81,8 @@ $(LIBS) $(LINKS)
 
 # sources
 
-$(BUILDDIR)/%.$(OBJEXT): %.$(SRCEXT) $(HEADERS) $(SETTINGS)
-	$(CC) $(CFLAGS) -I$(HEADERDIR) -c $< -o $(BUILDDIR)/$(notdir $@) $(LINKSRC)
+$(BUILDDIR)/%.$(OBJEXT): %.$(SRCEXT) $(HEADERS) $(GNLHEADERS) $(SETTINGS)
+	$(CC) $(CFLAGS) -I$(HEADERDIR) -I$(GNLDIR)/include -c $< -o $(BUILDDIR)/$(notdir $@) $(LINKSRC)
 
 # libs
 
