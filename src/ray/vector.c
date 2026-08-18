@@ -19,16 +19,6 @@ inline double length(const t_vec3* v)
 	return (sqrt(v->x * v->x + v->y * v->y + v->z * v->z));
 }
 
-inline t_vec3 cross(t_vec3 a, t_vec3 b)
-{
-	t_vec3 v;
-
-	v.x = a.y * b.z - a.z * b.y;
-	v.y = a.z * b.x - a.x * b.z;
-	v.z = a.x * b.y - a.y * b.x;
-	return (v);
-}
-
 inline t_vec3 add(t_vec3 a, t_vec3 b)
 {
 	t_vec3 v;
