@@ -67,7 +67,7 @@ void test()
 	}
 	{
 		assert(str_ends_with("a", "a"));
-		assert(str_ends_with("ab", "a"));
+		assert(!str_ends_with("ab", "a"));
 		assert(!str_ends_with("a", "ab"));
 		assert(!str_ends_with("a", "b"));
 		assert(str_ends_with("aab", "ab"));

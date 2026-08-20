@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <assert.h>
 #include <printf.h>
+#include <stdlib.h>
 #include "vector.h"
 
 #define DOUBLE_MAX 9999999999.0

@@ -60,6 +60,7 @@ CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
 TEST_RENDER		= render/tree.obj
+# TEST_RENDER		= rt/dragon.rt
 
 VPATH = $(shell find $(SRCDIR) $(GNLDIR)/src -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
@@ -136,6 +137,7 @@ debug:
 
 standard:
 	@/bin/rm -f $(NAME)
+	@/bin/rm -f scene.bmp
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TEST_RENDER) --save
 	@open scene.bmp

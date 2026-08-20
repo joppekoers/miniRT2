@@ -92,7 +92,7 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	if (str_ends_with(filename, ".rt"))
 		parse_rt(gui, filename);
 	else if (str_ends_with(filename, ".obj"))
-		read_obj_file(gui, filename);
+		parse_obj_file(gui, filename);
 	else
 		exit_e("File type not recognised, expect .rt or .obj;");
 	timer_print("Parse .rt", timer);
