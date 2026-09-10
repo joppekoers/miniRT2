@@ -56,36 +56,57 @@
 #include "constants.h"
 #include "vector.h"
 
-t_vec3 normal_tr(t_vec3 p0, t_vec3 p1, t_vec3 p2)
+void set_edge_normal(t_triangle* tr)
 {
-	return (unit(cross(subtract(p1, p0), subtract(p2, p0))));
+	(void)tr;
+#ifdef PRE_COMPUTE_TRIANGLE
+	tr->edge1 = subtract(tr->p1, tr->p0);
+	tr->edge2 = subtract(tr->p2, tr->p0);
+	tr->normal = unit(cross(tr->edge1, tr->edge2));
+#endif
 }
 
 // Stolen from: Möller–Trumbore
 
 t_hit hit_triangle(t_pos pos, t_ray ray)
 {
-	t_hit_triangle n;
+#ifdef PRE_COMPUTE_TRIANGLE
+	const t_vec3 edge1 = pos.tr.edge1;
+	const t_vec3 edge2 = pos.tr.edge2;
+#else
+	const t_vec3 edge1 = subtract(pos.tr.p1, pos.tr.p0);
+	const t_vec3 edge2 = subtract(pos.tr.p2, pos.tr.p0);
+#endif
 
-	n.h = cross(ray.dir, pos.tr.edge2);
-	n.a = dot(pos.tr.edge1, n.h);
-	if (n.a > -EPSILON && n.a < EPSILON)
+	t_vec3 h = cross(ray.dir, edge2);
+	double a = dot(edge1, h);
+	if (a > -EPSILON && a < EPSILON)
 		return ((t_hit){false});
-	n.f = 1.0 / n.a;
-	n.s = subtract(ray.origin, pos.tr.p0);
-	n.u = n.f * dot(n.s, n.h);
-	if (n.u < 0.0 || n.u > 1.0)
+
+	double f = 1.0 / a;
+	t_vec3 s = subtract(ray.origin, pos.tr.p0);
+	double u = f * dot(s, h);
+	if (u < 0.0 || u > 1.0)
 		return ((t_hit){false});
-	n.q = cross(n.s, pos.tr.edge1);
-	n.v = n.f * dot(ray.dir, n.q);
-	if (n.v < 0.0 || n.u + n.v > 1.0)
+
+	t_vec3 q = cross(s, edge1);
+	double v = f * dot(ray.dir, q);
+	if (v < 0.0 || u + v > 1.0)
 		return ((t_hit){false});
-	n.t = n.f * dot(pos.tr.edge2, n.q);
-	if (n.t < EPSILON)
+
+	double t = f * dot(edge2, q);
+	if (t < EPSILON)
 		return ((t_hit){false});
-	n.hit.hit = true;
-	n.hit.dist = n.t;
-	n.hit.point = translate(ray.origin, ray.dir, n.hit.dist);
-	n.hit.normal = correct_normal(pos.tr.normal, ray);
-	return (n.hit);
+
+	t_hit hit;
+	hit.hit = true;
+	hit.dist = t;
+	hit.point = translate(ray.origin, ray.dir, hit.dist);
+#ifdef PRE_COMPUTE_TRIANGLE
+	const t_vec3 normal = pos.tr.normal;
+#else
+	const t_vec3 normal = unit(cross(edge1, edge2));
+#endif
+	hit.normal = correct_normal(normal, ray);
+	return (hit);
 }

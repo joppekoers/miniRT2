@@ -80,9 +80,7 @@ void add_triangle(t_vec* shapes, char* line)
 	set_point(&obj.pos.tr.p2, items[3]);
 	set_color(&obj.color, items[4]);
 	ft_free_until_null_char(items);
-	obj.pos.tr.edge1 = subtract(obj.pos.tr.p1, obj.pos.tr.p0);
-	obj.pos.tr.edge2 = subtract(obj.pos.tr.p2, obj.pos.tr.p0);
-	obj.pos.tr.normal = normal_tr(obj.pos.tr.p0, obj.pos.tr.p1, obj.pos.tr.p2);
+	set_edge_normal(&obj.pos.tr);
 	if (vec_push(shapes, &obj) == NULL)
 		exit_e("malloc");
 }

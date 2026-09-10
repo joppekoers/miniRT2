@@ -212,9 +212,11 @@ typedef struct s_triangle
 	t_vec3 p0;
 	t_vec3 p1;
 	t_vec3 p2;
+#ifdef PRE_COMPUTE_TRIANGLE
 	t_vec3 edge1;
 	t_vec3 edge2;
 	t_vec3 normal;
+#endif
 } t_triangle;
 
 typedef union u_pos

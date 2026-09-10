@@ -25,6 +25,11 @@
 
 // #define OCTREE_DEBUG
 
+// If enabled we store the edge1, edge2, normal at init time, using 2x the
+// memory but preventing some repeated calculation
+// This is less performant so it is disabled
+// #define PRE_COMPUTE_TRIANGLE
+
 // Bool: Enable verbose logging? :boolean
 #define VERBOSE 1
 
