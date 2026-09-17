@@ -6,18 +6,25 @@
 // The starting byte of the element being stored at index i
 #define table_byte(vec, i) vec->table + (((i) + vec->start_i) * vec->element_size)
 
-t_vec vec(size_t elements, size_t element_size)
+t_vec vecm(size_t elements, size_t element_size, void* (*_malloc)(size_t), void (*_free)(void*))
 {
 	t_vec vec;
 
 	if (elements == 0)
-		elements = 100;
-	vec.table = malloc(elements * element_size);
+		elements = 10;
+	vec.malloc = _malloc;
+	vec.free = _free;
+	vec.table = vec.malloc(elements * element_size);
 	vec.start_i = 0;
 	vec.length = 0;
 	vec.byte_size = elements * element_size;
 	vec.element_size = element_size;
 	return (vec);
+}
+
+t_vec vec(size_t elements, size_t element_size)
+{
+	return vecm(elements, element_size, &malloc, &free);
 }
 
 static void grow(t_vec* vec, size_t min_byte_size)
@@ -28,9 +35,10 @@ static void grow(t_vec* vec, size_t min_byte_size)
 		new_size *= 2;
 	} while (new_size < min_byte_size);
 
-	void* new = malloc(new_size);
-	ft_memcpy(new, vec->table + (vec->start_i * vec->element_size), (vec->length * vec->element_size));
-	free(vec->table);
+	void* new = vec->malloc(new_size);
+	ft_memcpy(new, vec->table + (vec->start_i * vec->element_size), vec->length * vec->element_size);
+	if (vec->free)
+		vec->free(vec->table);
 	vec->table = new;
 	vec->start_i = 0;
 	vec->byte_size = new_size;
@@ -78,7 +86,7 @@ bool vec_gets(const t_vec* vec, void* dest, ssize_t i)
 	return vec_get(vec, dest, i);
 }
 
-void* vec_push(t_vec* vec, void* value)
+inline void* vec_push(t_vec* vec, void* value)
 {
 	return vec_set(vec, vec->length, value);
 }
@@ -96,7 +104,8 @@ void vec_free(t_vec* vec, void (*del)(void*))
 			i++;
 		}
 	}
-	free(vec->table);
+	if (vec->free)
+		vec->free(vec->table);
 	ft_bzero(vec, sizeof(t_vec));
 }
 

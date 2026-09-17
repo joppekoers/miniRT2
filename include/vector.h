@@ -53,7 +53,7 @@ typedef struct s_vec3
 #define distance2(a, b) \
 	({ \
 		const t_vec3 ab = subtract(*(a), *(b)); \
-		ab.x * ab.x + ab.y * ab.y + ab.z * ab.z; \
+		ab.x* ab.x + ab.y* ab.y + ab.z* ab.z; \
 	})
 #define distance(a, b) (sqrt(distance2(a, b)))
 
@@ -66,9 +66,12 @@ typedef struct s_vec
 	size_t	 byte_size;
 	size_t	 element_size;
 	uint8_t* table;
+	void* (*malloc)(size_t);
+	void (*free)(void*);
 } t_vec;
 
 t_vec vec(size_t elements, size_t element_size);
+t_vec vecm(size_t elements, size_t element_size, void* (*allocator)(size_t), void (*free)(void*));
 void* vec_set(t_vec* vec, size_t i, void* value);
 void* vec_set_s(t_vec* vec, ssize_t i, void* value);
 bool  vec_get(const t_vec* vec, void* dest, size_t i);

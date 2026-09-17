@@ -1,10 +1,12 @@
 #pragma once
-#include <stdbool.h>
-#include <sys/types.h>
-#include <stdint.h>
 #include <assert.h>
+#include <float.h>
 #include <printf.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 #define DOUBLE_MAX 9999999999.0
 #define DOUBLE_MIN -9999999999.0
