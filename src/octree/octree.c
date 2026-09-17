@@ -1,22 +1,29 @@
 #include "constants.h"
-#include <float.h>
-#include <stdio.h>
+
 #include "intersect.h"
 #include "vector.h"
+#include "marena.h"
 
 #define OCTREE_MAX_DEPTH 10
 
-// To init the root of a octree, only use on initial creation
+void* malloc2(size_t n)
+{
+	static t_marena arena = {.p = 0};
+	if (!arena.p)
+		marena_init(&arena, 20 * 1000 * 1000);
+	return marena_malloc(&arena, n);
+}
+
 t_octree octree(t_aabb aabb, size_t objects)
 {
 	t_octree octree;
 	ft_bzero(&octree, sizeof(t_octree));
 	octree.aabb = aabb;
-	// octree.children = vec(8, sizeof(t_octree));
-	octree.objects = vec(objects, sizeof(t_obj));
+	octree.objects = vecm(objects, sizeof(t_obj), &malloc2, NULL);
 	return octree;
 }
 
+// To init the root of a octree, only use on initial creation
 t_octree octree_root(size_t objects)
 {
 	const t_vec3 min = {
@@ -29,7 +36,7 @@ t_octree octree_root(size_t objects)
 			.y = DBL_MAX,
 			.z = DBL_MAX,
 	};
-	return octree(aabb_vec(min, max), objects);
+	return octree(aabb_from_vec3(min, max), objects);
 }
 
 // depth of the deepest leaf, a tree of only a root has depth 1
@@ -147,21 +154,21 @@ void make_children(t_octree* o)
 	t_octree new;
 
 	o->children = vec(8, sizeof(t_octree));
-	new = octree(aabb_vec(min, center), objects);
+	new = octree(aabb_from_vec3(min, center), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(center.x, min.y, min.z), vec3(max.x, center.y, center.z)), objects);
+	new = octree(aabb_from_vec3(vec3(center.x, min.y, min.z), vec3(max.x, center.y, center.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(min.x, center.y, min.z), vec3(center.x, max.y, center.z)), objects);
+	new = octree(aabb_from_vec3(vec3(min.x, center.y, min.z), vec3(center.x, max.y, center.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(center.x, center.y, min.z), vec3(max.x, max.y, center.z)), objects);
+	new = octree(aabb_from_vec3(vec3(center.x, center.y, min.z), vec3(max.x, max.y, center.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(min.x, min.y, center.z), vec3(center.x, center.y, max.z)), objects);
+	new = octree(aabb_from_vec3(vec3(min.x, min.y, center.z), vec3(center.x, center.y, max.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(center.x, min.y, center.z), vec3(max.x, center.y, max.z)), objects);
+	new = octree(aabb_from_vec3(vec3(center.x, min.y, center.z), vec3(max.x, center.y, max.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(vec3(min.x, center.y, center.z), vec3(center.x, max.y, max.z)), objects);
+	new = octree(aabb_from_vec3(vec3(min.x, center.y, center.z), vec3(center.x, max.y, max.z)), objects);
 	vec_push(&o->children, &new);
-	new = octree(aabb_vec(center, max), objects);
+	new = octree(aabb_from_vec3(center, max), objects);
 	vec_push(&o->children, &new);
 }
 

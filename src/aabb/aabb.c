@@ -9,7 +9,7 @@ bool aabb_is_inside(const t_aabb* aabb, const t_vec3* p)
 		   (p->z >= aabb->min.z && p->z <= aabb->max.z);
 }
 
-t_aabb aabb_vec(t_vec3 min, t_vec3 max)
+t_aabb aabb_from_vec3(t_vec3 min, t_vec3 max)
 {
 	return (t_aabb){.min = min, .max = max};
 }

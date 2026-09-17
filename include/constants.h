@@ -218,7 +218,7 @@ void	 bounce_nobounce(t_bounce* b);
 
 bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
 double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
-t_aabb	 aabb_vec(t_vec3 min, t_vec3 max);
+t_aabb	 aabb_from_vec3(t_vec3 min, t_vec3 max);
 t_aabb	 aabb_double(double min_x, double min_y, double min_z, double max_x, double max_y, double max_z);
 
 t_aabb	 obj_get_aabb(const t_obj* obj);
