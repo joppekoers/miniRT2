@@ -40,7 +40,7 @@ int	   get_number_of_threads();
 double timer_now(void);
 void   timer_print(const char* label, double start);
 
-typedef enum e_shape
+typedef enum __attribute__((__packed__)) e_shape
 {
 	SHAPE_SPHERE,
 	SHAPE_PLANE,
@@ -50,7 +50,7 @@ typedef enum e_shape
 	SHAPE_LAST
 } t_shape;
 
-typedef enum e_rule
+typedef enum __attribute__((__packed__)) e_rule
 {
 	RULE_SPHERE,
 	RULE_PLANE,
@@ -192,7 +192,9 @@ typedef struct s_obj
 {
 	t_shape shape;
 	t_rgb	color;
-	t_pos	pos;
+	// The index of the position array;
+	// u32	  pos_i;
+	t_pos pos;
 } t_obj;
 
 typedef struct s_hit
