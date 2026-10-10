@@ -112,12 +112,14 @@ void octree_shrink_to_fit(const t_gui* gui, t_octree* octree)
 	octree->aabb.max = max;
 }
 
-static void octree_bounce_children(const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce);
+static void octree_bounce_children(
+		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d);
 
-static void octree_bounce_recurse(const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce)
+static void octree_bounce_recurse(
+		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d)
 {
-	const double aabb_intersect = aabb_intersects(&octree->aabb, ray);
-	if (aabb_intersect < 0 || aabb_intersect > bounce->distance)
+	const double aabb_d = aabb_intersects(&octree->aabb, ray);
+	if (aabb_d < 0 || aabb_d > bounce->distance)
 		return;
 
 	t_obj* obj;
@@ -126,23 +128,34 @@ static void octree_bounce_recurse(const t_gui* gui, const t_octree* octree, cons
 	{
 		t_hit hit = hit_obj(gui, obj, *ray);
 		if (hit.hit && hit.dist < bounce->distance)
+		{
 			bounce_assign(bounce, &hit, obj);
+			if (stop_d > 0)
+				return;
+		}
 	}
 
-	octree_bounce_children(gui, octree, ray, bounce);
+	octree_bounce_children(gui, octree, ray, bounce, stop_d);
 }
 
-static void octree_bounce_children(const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce)
+static void octree_bounce_children(
+		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d)
 {
 	t_octree* child;
 	size_t	  i = 0;
 	while ((child = vec_getp(&octree->children, i++)))
-		octree_bounce_recurse(gui, child, ray, bounce);
+	{
+		octree_bounce_recurse(gui, child, ray, bounce, stop_d);
+		if (bounce->obj && stop_d > 0)
+			return;
+	}
 }
 
-t_bounce octree_bounce(const t_gui* gui, const t_ray* ray)
+// stop_d: if > 0 stop at first obj that is closer than that d
+t_bounce octree_bounce(const t_gui* gui, const t_ray* ray, double stop_d)
 {
-	t_bounce bounce = {.obj = NULL, .distance = DBL_MAX, .ray_origin = ray->origin};
+	double	 d = stop_d <= 0 ? DBL_MAX : stop_d;
+	t_bounce bounce = {.obj = NULL, .distance = d, .ray_origin = ray->origin};
 	t_obj*	 obj;
 	size_t	 i = 0;
 
@@ -153,8 +166,22 @@ t_bounce octree_bounce(const t_gui* gui, const t_ray* ray)
 		if (hit.hit && hit.dist < bounce.distance)
 			bounce_assign(&bounce, &hit, obj);
 	}
-	octree_bounce_recurse(gui, &gui->octree, ray, &bounce);
+
+	if (stop_d > 0 && bounce.obj)
+		return bounce;
+
+	octree_bounce_recurse(gui, &gui->octree, ray, &bounce, stop_d);
 	return bounce;
+}
+
+t_bounce octree_bounce_closest(const t_gui* gui, const t_ray* ray)
+{
+	return octree_bounce(gui, ray, -1);
+}
+
+t_bounce octree_bounce_first(const t_gui* gui, const t_ray* ray, const t_vec3 p)
+{
+	return octree_bounce(gui, ray, distance(&ray->origin, &p) - 1e-4);
 }
 
 // creates 8 children for the octree, subdividing them equally

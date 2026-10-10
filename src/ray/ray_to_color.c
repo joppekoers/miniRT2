@@ -28,7 +28,7 @@ void bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj)
 
 t_bounce get_bounce(const t_gui* gui, t_ray ray)
 {
-	return octree_bounce(gui, &ray);
+	return octree_bounce_closest(gui, &ray);
 }
 
 // Add light from *light to *l

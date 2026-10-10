@@ -154,12 +154,29 @@ flame:
 
 BENCH_RUNS		= 3
 
+ifeq ($(shell uname),Linux)
+TIME_RSS		= /usr/bin/time -v
+RSS_BYTES		= awk -F': ' '/Maximum resident set size/ { print $$2 * 1024 }'
+else
+TIME_RSS		= /usr/bin/time -l
+RSS_BYTES		= awk '/maximum resident set size/ { print $$1 }'
+endif
+
 benchmark:
 	@$(MAKE) all > /dev/null
 	@for i in $$(seq $(BENCH_RUNS)); do \
-		./$(NAME) $(TEST_RENDER) --save 2>&1 | grep -ao 'Total *[0-9.]*' | awk '{print $$2}' || exit 1; \
-	done | awk '{ sum += $$1; printf "run %d: %.3fs\n", NR, $$1 } \
-		END { if (NR != $(BENCH_RUNS)) exit 1; printf "average over %d runs: %.3fs\n", NR, sum / NR }'
+		out=$$($(TIME_RSS) ./$(NAME) $(TEST_RENDER) --save 2>&1) || exit 1; \
+		total=$$(echo "$$out" | grep -ao 'Total *[0-9.]*' | awk '{print $$2}'); \
+		rss=$$(echo "$$out" | $(RSS_BYTES)); \
+		[ -n "$$total" ] && [ -n "$$rss" ] || exit 1; \
+		echo "$$total $$rss"; \
+	done | awk 'function group(n,   s, out) { s = sprintf("%d", n); \
+			while (length(s) > 3) { out = " " substr(s, length(s) - 2) out; s = substr(s, 1, length(s) - 3) } \
+			return s out } \
+		{ sum += $$1; if ($$2 > max_rss) max_rss = $$2; \
+			printf "run %d: %.3fs, max ram %s bytes\n", NR, $$1, group($$2) } \
+		END { if (NR != $(BENCH_RUNS)) exit 1; \
+			printf "average over %d runs: %.3fs, max ram %s bytes\n", NR, sum / NR, group(max_rss) }'
 	@/bin/rm -f scene.bmp
 
 rt:
