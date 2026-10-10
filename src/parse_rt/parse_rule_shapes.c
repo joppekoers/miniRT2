@@ -86,12 +86,16 @@ void add_triangle(t_gui* gui, char* line)
 {
 	t_obj	   obj;
 	t_triangle tr;
+	t_vec3	   p[3];
 	char**	   items;
 
 	items = split_clamp(line, 5);
-	set_point(&tr.p0, items[1]);
-	set_point(&tr.p1, items[2]);
-	set_point(&tr.p2, items[3]);
+	set_point(&p[0], items[1]);
+	set_point(&p[1], items[2]);
+	set_point(&p[2], items[3]);
+	tr.p0 = vec3f(p[0]);
+	tr.p1 = vec3f(p[1]);
+	tr.p2 = vec3f(p[2]);
 	set_color(&obj.color, items[4]);
 	ft_free_until_null_char(items);
 	set_edge_normal(&tr);

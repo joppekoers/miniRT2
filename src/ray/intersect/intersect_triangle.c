@@ -60,9 +60,9 @@ void set_edge_normal(t_triangle* tr)
 {
 	(void)tr;
 #ifdef PRE_COMPUTE_TRIANGLE
-	tr->edge1 = subtract(tr->p1, tr->p0);
-	tr->edge2 = subtract(tr->p2, tr->p0);
-	tr->normal = unit(cross(tr->edge1, tr->edge2));
+	tr->edge1 = vec3f(subtract(tr->p1, tr->p0));
+	tr->edge2 = vec3f(subtract(tr->p2, tr->p0));
+	tr->normal = vec3f(unit(cross(tr->edge1, tr->edge2)));
 #endif
 }
 
@@ -71,8 +71,8 @@ void set_edge_normal(t_triangle* tr)
 bool hit_triangle(const t_triangle* tr, t_ray ray, double* dist)
 {
 #ifdef PRE_COMPUTE_TRIANGLE
-	const t_vec3 edge1 = tr->edge1;
-	const t_vec3 edge2 = tr->edge2;
+	const t_vec3 edge1 = vec3d(tr->edge1);
+	const t_vec3 edge2 = vec3d(tr->edge2);
 #else
 	const t_vec3 edge1 = subtract(tr->p1, tr->p0);
 	const t_vec3 edge2 = subtract(tr->p2, tr->p0);
@@ -105,7 +105,7 @@ bool hit_triangle(const t_triangle* tr, t_ray ray, double* dist)
 t_vec3 normal_triangle(const t_triangle* tr, t_ray ray)
 {
 #ifdef PRE_COMPUTE_TRIANGLE
-	const t_vec3 normal = tr->normal;
+	const t_vec3 normal = vec3d(tr->normal);
 #else
 	const t_vec3 normal = unit(cross(subtract(tr->p1, tr->p0), subtract(tr->p2, tr->p0)));
 #endif

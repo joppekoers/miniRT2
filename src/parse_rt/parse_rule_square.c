@@ -22,13 +22,13 @@
 static void set_triangles(t_triangle* trs, const t_vec3* v, const t_vec3* edges)
 {
 	(void)edges; // TODO: remove?
-	trs[0].p0 = v[0];
-	trs[0].p1 = v[1];
-	trs[0].p2 = v[2];
+	trs[0].p0 = vec3f(v[0]);
+	trs[0].p1 = vec3f(v[1]);
+	trs[0].p2 = vec3f(v[2]);
 	set_edge_normal(trs);
-	trs[1].p0 = v[0];
-	trs[1].p1 = v[2];
-	trs[1].p2 = v[3];
+	trs[1].p0 = vec3f(v[0]);
+	trs[1].p1 = vec3f(v[2]);
+	trs[1].p2 = vec3f(v[3]);
 	set_edge_normal(trs + 1);
 }
 

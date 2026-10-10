@@ -101,9 +101,9 @@ static void push_triangle(t_gui* gui, t_vec3 p0, t_vec3 p1, t_vec3 p2)
 	t_triangle tr;
 
 	obj.color = OBJ_COLOR;
-	tr.p0 = p0;
-	tr.p1 = p1;
-	tr.p2 = p2;
+	tr.p0 = vec3f(p0);
+	tr.p1 = vec3f(p1);
+	tr.p2 = vec3f(p2);
 	set_edge_normal(&tr);
 	add_parsed_triangle(gui, &obj, &tr);
 }

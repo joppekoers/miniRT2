@@ -175,13 +175,13 @@ typedef struct s_sphere
 
 typedef struct s_triangle
 {
-	t_vec3 p0;
-	t_vec3 p1;
-	t_vec3 p2;
+	t_vec3f p0;
+	t_vec3f p1;
+	t_vec3f p2;
 #ifdef PRE_COMPUTE_TRIANGLE
-	t_vec3 edge1;
-	t_vec3 edge2;
-	t_vec3 normal;
+	t_vec3f edge1;
+	t_vec3f edge2;
+	t_vec3f normal;
 #endif
 } t_triangle;
 

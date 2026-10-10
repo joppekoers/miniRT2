@@ -27,6 +27,18 @@ typedef struct s_vec3
 	double z;
 } t_vec3;
 
+// Half the size of t_vec3, for points that are stored many times like triangle vertices.
+// The math macros below work on it too, they always return a t_vec3
+typedef struct s_vec3f
+{
+	float x;
+	float y;
+	float z;
+} t_vec3f;
+
+#define vec3f(v) ((t_vec3f){(v).x, (v).y, (v).z})
+#define vec3d(v) ((t_vec3){(v).x, (v).y, (v).z})
+
 #define dot(a, b) ((a).x * (b).x + (a).y * (b).y + (a).z * (b).z)
 #define cross(a, b) \
 	((t_vec3){(a).y * (b).z - (a).z * (b).y, (a).z * (b).x - (a).x * (b).z, (a).x * (b).y - (a).y * (b).x})
