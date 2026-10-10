@@ -14,7 +14,6 @@
 #include "intersect.h"
 #include "constants.h"
 #include "vector.h"
-#include "float.h"
 
 void bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj)
 {
@@ -25,36 +24,11 @@ void bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj)
 	b->normal = hit->normal;
 }
 
-void bounce_nobounce(t_bounce* b)
-{
-	b->obj = NULL;
-	b->distance = DBL_MAX;
-}
-
-// Get closest t_obj * (relative to ray.origin) from *shapes
+// Get closest t_obj * (relative to ray.origin)
 
 t_bounce get_bounce(const t_gui* gui, t_ray ray)
 {
-#ifdef USE_OCTREE
 	return octree_bounce(gui, &ray);
-#else
-
-	size_t	 i;
-	t_obj*	 obj;
-	t_hit	 hit;
-	t_bounce bounce;
-
-	i = 0;
-	bounce_nobounce(&bounce);
-	while ((obj = vec_getp(&gui->shapes, i)) != NULL)
-	{
-		hit = hit_obj(gui, obj, ray);
-		if (hit.hit && hit.dist < bounce.distance)
-			bounce_assign(&bounce, &hit, obj);
-		i++;
-	}
-	return (bounce);
-#endif
 }
 
 // Add light from *light to *l

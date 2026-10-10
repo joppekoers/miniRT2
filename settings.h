@@ -17,12 +17,6 @@
 // This the settings file for the miniRT project.
 // After changing a setting you have to recompile with make re
 
-// Enable bonus functionality? :boolean
-// Do not change this define manually, it will be overwritten by the Makefile
-// to enable compile with bonus run: make bonus
-
-#define USE_OCTREE
-
 // #define OCTREE_DEBUG
 
 // If enabled we store the edge1, edge2, normal at init time, using 2x the

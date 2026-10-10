@@ -4,8 +4,6 @@
 #include "vector.h"
 #include "marena.h"
 
-#ifdef USE_OCTREE
-
 #define OCTREE_MAX_DEPTH 10
 
 void* malloc2(size_t n)
@@ -239,5 +237,3 @@ void octree_subdivide(const t_gui* gui, t_octree* o)
 {
 	subdivide_recursive(gui, o, 0);
 }
-
-#endif

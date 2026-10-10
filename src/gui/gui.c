@@ -61,9 +61,7 @@ void exit_success(t_gui* gui)
 	vec_free(&gui->planes, NULL);
 	vec_free(&gui->cylinders, NULL);
 	vec_free(&gui->triangles, NULL);
-#ifdef USE_OCTREE
 	vec_free(&gui->unbounded, NULL);
-#endif
 	vec_free(&gui->cameras, NULL);
 	vec_free(&gui->lights, NULL);
 	if (gui->window)

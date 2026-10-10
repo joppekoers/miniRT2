@@ -133,10 +133,8 @@ typedef struct s_gui
 	t_vec cylinders; // type: t_cylinder
 	t_vec triangles; // type: t_triangle
 
-#ifdef USE_OCTREE
 	t_octree octree;
 	t_vec	 unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
-#endif
 	t_vec		 lights; // type: t_light
 	t_vec		 cameras; // type: t_camera
 	size_t		 camera_i;
@@ -225,7 +223,6 @@ typedef struct s_bounce
 } t_bounce;
 
 void	 bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj);
-void	 bounce_nobounce(t_bounce* b);
 
 bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
 double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);

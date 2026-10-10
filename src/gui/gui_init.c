@@ -82,9 +82,7 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	gui->planes = vec(0, sizeof(t_plane));
 	gui->cylinders = vec(0, sizeof(t_cylinder));
 	gui->triangles = vec(0, sizeof(t_triangle));
-#ifdef USE_OCTREE
 	gui->unbounded = vec(0, sizeof(t_obj));
-#endif
 	gui->lights = vec(0, sizeof(t_light));
 	gui->cameras = vec(0, sizeof(t_camera));
 	if (DEBUG)
@@ -103,11 +101,9 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	else
 		exit_e("File type not recognised, expect .rt or .obj;");
 	timer_print("Parse .rt", timer);
-#ifdef USE_OCTREE
 	timer = timer_now();
 	gui->octree = octree_from_objects(gui);
 	timer_print("Build octree", timer);
-#endif
 	set_canvas(&gui->canvas, gui, create_window);
 	if (create_window)
 		open_window(gui);
