@@ -110,3 +110,29 @@ t_hit hit_triangle(t_pos pos, t_ray ray)
 	hit.normal = correct_normal(normal, ray);
 	return (hit);
 }
+
+t_aabb triangle_aabb(const t_triangle* tr)
+{
+	const t_vec3 min = {
+			.x = min3(tr->p0.x, tr->p1.x, tr->p2.x),
+			.y = min3(tr->p0.y, tr->p1.y, tr->p2.y),
+			.z = min3(tr->p0.z, tr->p1.z, tr->p2.z),
+	};
+	const t_vec3 max = {
+			.x = max3(tr->p0.x, tr->p1.x, tr->p2.x),
+			.y = max3(tr->p0.y, tr->p1.y, tr->p2.y),
+			.z = max3(tr->p0.z, tr->p1.z, tr->p2.z),
+	};
+	const t_aabb aabb = {
+			.min = min,
+			.max = max,
+	};
+	return aabb;
+}
+
+bool triangle_is_inside_aabb(const t_triangle* tr, const t_aabb* aabb)
+{
+	return aabb_is_inside(aabb, &tr->p0) && //
+		   aabb_is_inside(aabb, &tr->p1) && //
+		   aabb_is_inside(aabb, &tr->p2);
+}

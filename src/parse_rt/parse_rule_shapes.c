@@ -68,7 +68,7 @@ void add_cylinder(t_vec* shapes, char* line)
 		exit_e("malloc");
 }
 
-void add_triangle(t_vec* shapes, char* line)
+void add_triangle_old(t_vec* shapes, char* line)
 {
 	t_obj  obj;
 	char** items;
@@ -82,5 +82,21 @@ void add_triangle(t_vec* shapes, char* line)
 	ft_free_until_null_char(items);
 	set_edge_normal(&obj.pos.tr);
 	if (vec_push(shapes, &obj) == NULL)
+		exit_e("malloc");
+}
+
+void add_triangle(t_vec* triangles, char* line)
+{
+	t_triangle tr;
+	char**	   items;
+
+	items = split_clamp(line, 5);
+	set_point(&tr.p0, items[1]);
+	set_point(&tr.p1, items[2]);
+	set_point(&tr.p2, items[3]);
+	set_color(&tr.color, items[4]);
+	ft_free_until_null_char(items);
+	set_edge_normal(&tr);
+	if (vec_push(triangles, &tr) == NULL)
 		exit_e("malloc");
 }
