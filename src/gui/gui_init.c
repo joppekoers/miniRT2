@@ -101,6 +101,8 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	else
 		exit_e("File type not recognised, expect .rt or .obj;");
 	timer_print("Parse .rt", timer);
+	if (VERBOSE)
+		printf("%-12s %8zu\n", "Objects", gui->shapes.length);
 	timer = timer_now();
 	gui->octree = octree_from_objects(gui);
 	timer_print("Build octree", timer);
