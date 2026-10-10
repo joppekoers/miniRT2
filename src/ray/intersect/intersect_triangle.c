@@ -68,7 +68,7 @@ void set_edge_normal(t_triangle* tr)
 
 // Stolen from: Möller–Trumbore
 
-t_hit hit_triangle(const t_triangle* tr, t_ray ray)
+bool hit_triangle(const t_triangle* tr, t_ray ray, double* dist)
 {
 #ifdef PRE_COMPUTE_TRIANGLE
 	const t_vec3 edge1 = tr->edge1;
@@ -81,32 +81,33 @@ t_hit hit_triangle(const t_triangle* tr, t_ray ray)
 	t_vec3 h = cross(ray.dir, edge2);
 	double a = dot(edge1, h);
 	if (a > -EPSILON && a < EPSILON)
-		return ((t_hit){false});
+		return (false);
 
 	double f = 1.0 / a;
 	t_vec3 s = subtract(ray.origin, tr->p0);
 	double u = f * dot(s, h);
 	if (u < 0.0 || u > 1.0)
-		return ((t_hit){false});
+		return (false);
 
 	t_vec3 q = cross(s, edge1);
 	double v = f * dot(ray.dir, q);
 	if (v < 0.0 || u + v > 1.0)
-		return ((t_hit){false});
+		return (false);
 
 	double t = f * dot(edge2, q);
 	if (t < EPSILON)
-		return ((t_hit){false});
+		return (false);
 
-	t_hit hit;
-	hit.hit = true;
-	hit.dist = t;
-	hit.point = translate(ray.origin, ray.dir, hit.dist);
+	*dist = t;
+	return (true);
+}
+
+t_vec3 normal_triangle(const t_triangle* tr, t_ray ray)
+{
 #ifdef PRE_COMPUTE_TRIANGLE
 	const t_vec3 normal = tr->normal;
 #else
-	const t_vec3 normal = unit(cross(edge1, edge2));
+	const t_vec3 normal = unit(cross(subtract(tr->p1, tr->p0), subtract(tr->p2, tr->p0)));
 #endif
-	hit.normal = correct_normal(normal, ray);
-	return (hit);
+	return (correct_normal(normal, ray));
 }

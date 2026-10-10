@@ -204,14 +204,6 @@ static inline const void* get_pos(const t_gui* gui, const t_obj* obj)
 	exit_e("Shape not supported");
 }
 
-typedef struct s_hit
-{
-	bool   hit;
-	double dist;
-	t_vec3 point;
-	t_vec3 normal;
-} t_hit;
-
 typedef struct s_bounce
 {
 	const t_obj* obj;
@@ -222,10 +214,10 @@ typedef struct s_bounce
 	double		 distance;
 } t_bounce;
 
-void	 bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj);
+void	 bounce_assign(t_bounce* b, double dist, const t_obj* obj);
 
 bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
-double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
+double	 aabb_intersects(const t_aabb* aabb, const t_vec3* origin, const t_vec3* inv_dir);
 t_aabb	 aabb_from_vec3(t_vec3 min, t_vec3 max);
 t_aabb	 aabb_double(double min_x, double min_y, double min_z, double max_x, double max_y, double max_z);
 

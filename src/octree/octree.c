@@ -112,41 +112,47 @@ void octree_shrink_to_fit(const t_gui* gui, t_octree* octree)
 	octree->aabb.max = max;
 }
 
-static void octree_bounce_children(
-		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d);
-
-static void octree_bounce_recurse(
-		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d)
+// Everything about the ray that stays the same during one traversal
+typedef struct s_traverse
 {
-	const double aabb_d = aabb_intersects(&octree->aabb, ray);
+	const t_gui* gui;
+	const t_ray* ray;
+	t_vec3		 inv_dir;
+	double		 stop_d;
+} t_traverse;
+
+static void octree_bounce_children(const t_traverse* t, const t_octree* octree, t_bounce* bounce);
+
+static void octree_bounce_recurse(const t_traverse* t, const t_octree* octree, t_bounce* bounce)
+{
+	const double aabb_d = aabb_intersects(&octree->aabb, &t->ray->origin, &t->inv_dir);
 	if (aabb_d < 0 || aabb_d > bounce->distance)
 		return;
 
 	t_obj* obj;
+	double dist;
 	size_t i = 0;
 	while ((obj = vec_getp(&octree->objects, i++)))
 	{
-		t_hit hit = hit_obj(gui, obj, *ray);
-		if (hit.hit && hit.dist < bounce->distance)
+		if (hit_obj(t->gui, obj, *t->ray, &dist) && dist < bounce->distance)
 		{
-			bounce_assign(bounce, &hit, obj);
-			if (stop_d > 0)
+			bounce_assign(bounce, dist, obj);
+			if (t->stop_d > 0)
 				return;
 		}
 	}
 
-	octree_bounce_children(gui, octree, ray, bounce, stop_d);
+	octree_bounce_children(t, octree, bounce);
 }
 
-static void octree_bounce_children(
-		const t_gui* gui, const t_octree* octree, const t_ray* ray, t_bounce* bounce, double stop_d)
+static void octree_bounce_children(const t_traverse* t, const t_octree* octree, t_bounce* bounce)
 {
 	t_octree* child;
 	size_t	  i = 0;
 	while ((child = vec_getp(&octree->children, i++)))
 	{
-		octree_bounce_recurse(gui, child, ray, bounce, stop_d);
-		if (bounce->obj && stop_d > 0)
+		octree_bounce_recurse(t, child, bounce);
+		if (bounce->obj && t->stop_d > 0)
 			return;
 	}
 }
@@ -154,29 +160,42 @@ static void octree_bounce_children(
 // stop_d: if > 0 stop at first obj that is closer than that d
 t_bounce octree_bounce(const t_gui* gui, const t_ray* ray, double stop_d)
 {
+	const t_traverse t = {
+			.gui = gui,
+			.ray = ray,
+			.inv_dir = {1.0 / ray->dir.x, 1.0 / ray->dir.y, 1.0 / ray->dir.z},
+			.stop_d = stop_d,
+	};
 	double	 d = stop_d <= 0 ? DBL_MAX : stop_d;
 	t_bounce bounce = {.obj = NULL, .distance = d, .ray_origin = ray->origin};
 	t_obj*	 obj;
+	double	 dist;
 	size_t	 i = 0;
 
 	// Hitting these first gives a shorter bounce distance, so more octree nodes get skipped
 	while ((obj = vec_getp(&gui->unbounded, i++)))
 	{
-		t_hit hit = hit_obj(gui, obj, *ray);
-		if (hit.hit && hit.dist < bounce.distance)
-			bounce_assign(&bounce, &hit, obj);
+		if (hit_obj(gui, obj, *ray, &dist) && dist < bounce.distance)
+			bounce_assign(&bounce, dist, obj);
 	}
 
 	if (stop_d > 0 && bounce.obj)
 		return bounce;
 
-	octree_bounce_recurse(gui, &gui->octree, ray, &bounce, stop_d);
+	octree_bounce_recurse(&t, &gui->octree, &bounce);
 	return bounce;
 }
 
 t_bounce octree_bounce_closest(const t_gui* gui, const t_ray* ray)
 {
-	return octree_bounce(gui, ray, -1);
+	t_bounce bounce = octree_bounce(gui, ray, -1);
+
+	if (bounce.obj)
+	{
+		bounce.point = translate(ray->origin, ray->dir, bounce.distance);
+		bounce.normal = normal_obj(gui, bounce.obj, bounce.point, *ray);
+	}
+	return bounce;
 }
 
 t_bounce octree_bounce_first(const t_gui* gui, const t_ray* ray, const t_vec3 p)

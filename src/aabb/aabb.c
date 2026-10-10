@@ -23,9 +23,8 @@ t_aabb aabb_double(double min_x, double min_y, double min_z, double max_x, doubl
 // 1.0 / -0.0 = -inf keeps t1/t2 ordered by fmin/fmax, and fmin/fmax return
 // the non-NaN operand when 0 * inf occurs (origin exactly on a slab plane),
 // so the test stays conservative instead of poisoning the interval
-static void slab(double bmin, double bmax, double origin, double dir, double* tmin, double* tmax)
+static void slab(double bmin, double bmax, double origin, double inv, double* tmin, double* tmax)
 {
-	const double inv = 1.0 / dir;
 	const double t1 = (bmin - origin) * inv;
 	const double t2 = (bmax - origin) * inv;
 
@@ -35,14 +34,15 @@ static void slab(double bmin, double bmax, double origin, double dir, double* tm
 
 // distance along the ray to the box entry point, 0 when the origin is
 // inside the box, -1 when the ray misses
-double aabb_intersects(const t_aabb* aabb, const t_ray* ray)
+// inv_dir is 1 / ray.dir per axis, computed once per ray instead of for every box
+double aabb_intersects(const t_aabb* aabb, const t_vec3* origin, const t_vec3* inv_dir)
 {
 	double tmin = -DBL_MAX;
 	double tmax = DBL_MAX;
 
-	slab(aabb->min.x, aabb->max.x, ray->origin.x, ray->dir.x, &tmin, &tmax);
-	slab(aabb->min.y, aabb->max.y, ray->origin.y, ray->dir.y, &tmin, &tmax);
-	slab(aabb->min.z, aabb->max.z, ray->origin.z, ray->dir.z, &tmin, &tmax);
+	slab(aabb->min.x, aabb->max.x, origin->x, inv_dir->x, &tmin, &tmax);
+	slab(aabb->min.y, aabb->max.y, origin->y, inv_dir->y, &tmin, &tmax);
+	slab(aabb->min.z, aabb->max.z, origin->z, inv_dir->z, &tmin, &tmax);
 	if (tmax < tmin || tmax <= 0)
 		return -1;
 	return fmax(tmin, 0.0);

@@ -15,13 +15,12 @@
 #include "constants.h"
 #include "vector.h"
 
-void bounce_assign(t_bounce* b, const t_hit* hit, const t_obj* obj)
+// point and normal are filled in once the closest obj is known
+void bounce_assign(t_bounce* b, double dist, const t_obj* obj)
 {
-	b->distance = hit->dist;
+	b->distance = dist;
 	b->obj = obj;
 	b->color = obj->color;
-	b->point = hit->point;
-	b->normal = hit->normal;
 }
 
 // Get closest t_obj * (relative to ray.origin)
@@ -45,7 +44,8 @@ static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const 
 t_rgb debug_overlay(t_ray ray, const t_gui* gui, t_rgb rgb)
 {
 #ifdef OCTREE_DEBUG
-	if (aabb_intersects(&gui->octree.aabb, &ray) >= 0)
+	const t_vec3 inv_dir = {1.0 / ray.dir.x, 1.0 / ray.dir.y, 1.0 / ray.dir.z};
+	if (aabb_intersects(&gui->octree.aabb, &ray.origin, &inv_dir) >= 0)
 		return add_color(rgb, (t_rgb){.r = 255, .g = 0, .b = 0}, 0.4);
 #endif
 	(void)ray;

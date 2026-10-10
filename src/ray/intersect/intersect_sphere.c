@@ -39,22 +39,20 @@ static double actual_t(double t0, double t1)
 	return (-1);
 }
 
-t_hit hit_sphere(const t_sphere* sp, t_ray ray)
+bool hit_sphere(const t_sphere* sp, t_ray ray, double* dist)
 {
 	double t0;
 	double t1;
-	t_hit  hit;
 
 	if (!get_intersections(&t0, &t1, *sp, ray))
-		return ((t_hit){false});
-	hit.dist = actual_t(t0, t1);
-	if (hit.dist < 0)
-		return ((t_hit){false});
-	hit.hit = true;
-	hit.point = translate(ray.origin, ray.dir, hit.dist);
+		return (false);
+	*dist = actual_t(t0, t1);
+	return (*dist >= 0);
+}
+
+t_vec3 normal_sphere(const t_sphere* sp, t_vec3 point, t_ray ray)
+{
 	if (distance2(&ray.origin, &sp->origin) > sp->radius2)
-		hit.normal = unit(subtract(hit.point, sp->origin));
-	else
-		hit.normal = unit(subtract(sp->origin, hit.point));
-	return (hit);
+		return (unit(subtract(point, sp->origin)));
+	return (unit(subtract(sp->origin, point)));
 }
