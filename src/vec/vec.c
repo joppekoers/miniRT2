@@ -3,9 +3,6 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-// The starting byte of the element being stored at index i
-#define table_byte(vec, i) vec->table + (((i) + vec->start_i) * vec->element_size)
-
 t_vec vecm(size_t elements, size_t element_size, void* (*_malloc)(size_t), void (*_free)(void*))
 {
 	t_vec vec;
@@ -57,38 +54,12 @@ void* vec_set(t_vec* vec, size_t i, void* value)
 	return dst;
 }
 
-void* vec_set_s(t_vec* vec, ssize_t i, void* value)
-{
-	if (i < 0)
-		i = vec->length + i;
-	return vec_set(vec, i, value);
-}
-
 bool vec_get(const t_vec* vec, void* dest, size_t i)
 {
 	if (i >= vec->length)
 		return false;
 	ft_memcpy(dest, table_byte(vec, i), vec->element_size);
 	return true;
-}
-
-void* vec_getp(const t_vec* vec, size_t i)
-{
-	if (i >= vec->length)
-		return NULL;
-	return table_byte(vec, i);
-}
-
-bool vec_gets(const t_vec* vec, void* dest, ssize_t i)
-{
-	if (i < 0)
-		i = vec->length + i;
-	return vec_get(vec, dest, i);
-}
-
-inline void* vec_push(t_vec* vec, void* value)
-{
-	return vec_set(vec, vec->length, value);
 }
 
 void vec_free(t_vec* vec, void (*del)(void*))

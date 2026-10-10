@@ -73,14 +73,39 @@ typedef struct s_vec
 t_vec vec(size_t elements, size_t element_size);
 t_vec vecm(size_t elements, size_t element_size, void* (*allocator)(size_t), void (*free)(void*));
 void* vec_set(t_vec* vec, size_t i, void* value);
-void* vec_set_s(t_vec* vec, ssize_t i, void* value);
 bool  vec_get(const t_vec* vec, void* dest, size_t i);
-bool  vec_gets(const t_vec* vec, void* dest, ssize_t i);
-void* vec_getp(const t_vec* vec, size_t i);
-void* vec_push(t_vec* vec, void* value);
 void  vec_free(t_vec* vec, void (*del)(void*));
 void  vec_shift(t_vec* vec, void (*del)(void*));
 void  vec_pop(t_vec* vec, void (*del)(void*));
+
+// The starting byte of the element being stored at index i
+#define table_byte(vec, i) vec->table + (((i) + vec->start_i) * vec->element_size)
+
+static inline void* vec_set_s(t_vec* vec, ssize_t i, void* value)
+{
+	if (i < 0)
+		i = vec->length + i;
+	return vec_set(vec, i, value);
+}
+
+static inline void* vec_getp(const t_vec* vec, size_t i)
+{
+	if (i >= vec->length)
+		return NULL;
+	return table_byte(vec, i);
+}
+
+static inline bool vec_gets(const t_vec* vec, void* dest, ssize_t i)
+{
+	if (i < 0)
+		i = vec->length + i;
+	return vec_get(vec, dest, i);
+}
+
+static inline void* vec_push(t_vec* vec, void* value)
+{
+	return vec_set(vec, vec->length, value);
+}
 
 typedef union u_rsqrt
 {

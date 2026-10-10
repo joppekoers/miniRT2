@@ -1,18 +1,5 @@
 #include "constants.h"
 
-const void* get_pos(const t_gui* gui, const t_obj* obj)
-{
-	if (obj->shape == SHAPE_TRIANGLE)
-		return vec_getp(&gui->triangles, obj->pos_i);
-	if (obj->shape == SHAPE_SPHERE)
-		return vec_getp(&gui->spheres, obj->pos_i);
-	if (obj->shape == SHAPE_PLANE)
-		return vec_getp(&gui->planes, obj->pos_i);
-	if (obj->shape == SHAPE_CYLINDER)
-		return vec_getp(&gui->cylinders, obj->pos_i);
-	exit_e("Shape not supported");
-}
-
 bool obj_is_bounded(const t_obj* obj)
 {
 	return obj->shape != SHAPE_PLANE;

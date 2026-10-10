@@ -193,7 +193,18 @@ typedef struct s_obj
 	u32		pos_i;
 } t_obj;
 
-const void* get_pos(const t_gui* gui, const t_obj* obj);
+static inline const void* get_pos(const t_gui* gui, const t_obj* obj)
+{
+	if (obj->shape == SHAPE_TRIANGLE)
+		return vec_getp(&gui->triangles, obj->pos_i);
+	if (obj->shape == SHAPE_SPHERE)
+		return vec_getp(&gui->spheres, obj->pos_i);
+	if (obj->shape == SHAPE_PLANE)
+		return vec_getp(&gui->planes, obj->pos_i);
+	if (obj->shape == SHAPE_CYLINDER)
+		return vec_getp(&gui->cylinders, obj->pos_i);
+	exit_e("Shape not supported");
+}
 
 typedef struct s_hit
 {
