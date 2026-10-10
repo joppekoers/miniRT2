@@ -13,7 +13,7 @@
 NAME      		= miniRT
 
 CC          	= gcc
-CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3
+CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3 -flto
 # CFLAGS			= -Wall -Wextra -Wuninitialized -O0 # debug
 
 SRCEXT      	= c
@@ -60,7 +60,7 @@ CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
 # TEST_RENDER		= render/tree.obj
-TEST_RENDER		= rt/room.rt
+TEST_RENDER		= rt/dragon.rt
 
 VPATH = $(shell find $(SRCDIR) $(GNLDIR)/src -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
