@@ -14,7 +14,7 @@ NAME      		= miniRT
 
 CC          	= gcc
 CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3
-# CFLAGS          += -lto # disable if to see more granual flamegraph
+CFLAGS          += -flto # disable if to see more granual flamegraph
 # CFLAGS			= -Wall -Wextra -Wuninitialized -O0 # debug
 
 SRCEXT      	= c
