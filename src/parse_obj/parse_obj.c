@@ -6,8 +6,13 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
+#include <float.h>
+#include <math.h>
 
 #define OBJ_COLOR ((t_rgb){200, 200, 200})
+#define OBJ_X_SIZE 1920
+#define OBJ_Y_SIZE 1080
+#define OBJ_FOV 80.0
 
 typedef struct s_obj_file
 {
@@ -158,6 +163,57 @@ static void read_line(t_obj_file* file, const char* line)
 		print_object_name(skip_space(s + 1));
 }
 
+// Camera placement from minirt_rs look_at(): above and in front of the model, looking at its average point
+static void add_look_at_camera(t_gui* gui)
+{
+	t_vec3		avg = {0.0, 0.0, 0.0};
+	t_vec3		min = {DBL_MAX, DBL_MAX, DBL_MAX};
+	t_vec3		max = {-DBL_MAX, -DBL_MAX, -DBL_MAX};
+	t_triangle* tr;
+	size_t		i = 0;
+	t_camera	cam;
+
+	while ((tr = vec_getp(&gui->triangles, i++)))
+	{
+		avg = add(avg, scale(add(add(tr->p0, tr->p1), tr->p2), 1.0 / 3.0));
+		min.x = min2(min.x, min3(tr->p0.x, tr->p1.x, tr->p2.x));
+		min.y = min2(min.y, min3(tr->p0.y, tr->p1.y, tr->p2.y));
+		min.z = min2(min.z, min3(tr->p0.z, tr->p1.z, tr->p2.z));
+		max.x = max2(max.x, max3(tr->p0.x, tr->p1.x, tr->p2.x));
+		max.y = max2(max.y, max3(tr->p0.y, tr->p1.y, tr->p2.y));
+		max.z = max2(max.z, max3(tr->p0.z, tr->p1.z, tr->p2.z));
+	}
+	avg = scale(avg, 1.0 / gui->triangles.length);
+	const t_vec3 diagonal = subtract(max, min);
+	const double size = length(&diagonal);
+
+	cam.origin = add(avg, vec3(size / 5.0, size / 5.0, size / 5.0));
+	cam.origin.z = -fabs(avg.z + size / 2.0);
+	cam.dir = unit(subtract(avg, cam.origin));
+	cam.fov = ft_radians(OBJ_FOV);
+	add_parsed_camera(gui, cam);
+}
+
+// An .obj file only has geometry, so the rest of the scene gets defaults
+static void set_scene_defaults(t_gui* gui)
+{
+	if (gui->triangles.length == 0)
+		exit_e("No faces found in .obj file");
+	gui->x_size = OBJ_X_SIZE;
+	gui->y_size = OBJ_Y_SIZE;
+	add_look_at_camera(gui);
+
+	t_light light = {.origin = gui->camera.origin, .brightness = 0.5, .color = {255, 255, 255}};
+	if (vec_push(&gui->lights, &light) == NULL)
+		exit_e("malloc");
+
+	gui->ambient.brightness = 0.1;
+	gui->ambient.color = (t_rgb){255, 255, 255};
+	gui->ambient.scalar.r = round(gui->ambient.color.r * gui->ambient.brightness);
+	gui->ambient.scalar.g = round(gui->ambient.color.g * gui->ambient.brightness);
+	gui->ambient.scalar.b = round(gui->ambient.color.b * gui->ambient.brightness);
+}
+
 void parse_obj_file(t_gui* gui, const char* path)
 {
 	const int  fd = open(path, O_RDONLY);
@@ -176,4 +232,5 @@ void parse_obj_file(t_gui* gui, const char* path)
 	}
 	line_error("");
 	vec_free(&file.vertices, NULL);
+	set_scene_defaults(gui);
 }

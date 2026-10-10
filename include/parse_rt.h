@@ -38,6 +38,7 @@ void   add_parsed_triangle(t_gui* gui, t_obj* obj, t_triangle* tr);
 void   log_shapes(const t_vec* shapes);
 
 void   add_camera(t_gui* gui, char* line);
+void   add_parsed_camera(t_gui* gui, t_camera cam);
 void   add_light(t_vec* lights, char* line);
 void   set_resolution(t_gui* gui, char* line);
 void   set_ambient(t_ambient* ambient, char* line);
