@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+#include <errno.h>
+#include <string.h>
 
 #define OBJ_COLOR ((t_rgb){200, 200, 200})
 #define OBJ_X_SIZE 1920
@@ -221,7 +223,11 @@ void parse_obj_file(t_gui* gui, const char* path)
 	char*	   line;
 
 	if (fd < 0)
-		exit_e(ft_strjoin("Cannot open ", path));
+	{
+		char msg[1024];
+		snprintf(msg, sizeof(msg), "Cannot open %s: %s", path, strerror(errno));
+		exit_e(msg);
+	}
 	file.vertices = vec(1000, sizeof(t_vec3));
 	file.gui = gui;
 	while (ft_get_next_line(fd, &line) > 0)
