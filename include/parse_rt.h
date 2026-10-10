@@ -35,7 +35,7 @@ void   add_cylinder(t_gui* gui, char* line);
 void   add_triangle(t_gui* gui, char* line);
 void   add_parsed_triangle(t_gui* gui, t_obj* obj, t_triangle* tr);
 
-void   log_shapes(const t_vec* shapes);
+void   log_shapes(const t_gui* gui);
 
 void   add_camera(t_gui* gui, char* line);
 void   add_parsed_camera(t_gui* gui, t_camera cam);

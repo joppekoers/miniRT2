@@ -22,8 +22,9 @@
 static void push_shape(t_gui* gui, t_obj* obj, t_vec* positions, void* pos)
 {
 	obj->pos_i = positions->length;
-	if (vec_push(positions, pos) == NULL || vec_push(&gui->shapes, obj) == NULL)
-		exit_e("malloc");
+	vec_push(positions, pos);
+	t_vec* arr = obj_is_bounded(obj) ? &gui->octree.objects : &gui->unbounded;
+	vec_push(arr, obj);
 }
 
 void add_sphere(t_gui* gui, char* line)

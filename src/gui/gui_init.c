@@ -77,11 +77,11 @@ static void open_window(t_gui* gui)
 void gui_init(t_gui* gui, const char* filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
-	gui->shapes = vec(0, sizeof(t_obj));
 	gui->spheres = vec(0, sizeof(t_sphere));
 	gui->planes = vec(0, sizeof(t_plane));
 	gui->cylinders = vec(0, sizeof(t_cylinder));
 	gui->triangles = vec(0, sizeof(t_triangle));
+	gui->octree = octree_root(0);
 	gui->unbounded = vec(0, sizeof(t_obj));
 	gui->lights = vec(0, sizeof(t_light));
 	gui->cameras = vec(0, sizeof(t_camera));
@@ -102,9 +102,9 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 		exit_e("File type not recognised, expect .rt or .obj;");
 	timer_print("Parse .rt", timer);
 	if (VERBOSE)
-		printf("%-12s %8zu\n", "Objects", gui->shapes.length);
+		printf("%-12s %8zu\n", "Objects", gui->octree.objects.length + gui->unbounded.length);
 	timer = timer_now();
-	gui->octree = octree_from_objects(gui);
+	octree_build(gui);
 	timer_print("Build octree", timer);
 	set_canvas(&gui->canvas, gui, create_window);
 	if (create_window)

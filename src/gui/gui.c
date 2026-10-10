@@ -56,7 +56,6 @@ void exit_success(t_gui* gui)
 {
 	if (gui == NULL)
 		exit(1);
-	vec_free(&gui->shapes, NULL);
 	vec_free(&gui->spheres, NULL);
 	vec_free(&gui->planes, NULL);
 	vec_free(&gui->cylinders, NULL);

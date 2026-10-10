@@ -129,13 +129,12 @@ typedef struct s_octree
 
 typedef struct s_gui
 {
-	// holds all the objects in the scene
-	t_vec		 shapes; // type: t_obj
 	t_vec		 spheres; // type: t_sphere
 	t_vec		 planes; // type: t_plane
 	t_vec		 cylinders; // type: t_cylinder
 	t_vec		 triangles; // type: t_triangle
 
+	// the objects in the scene are in either the octree or unbounded
 	t_octree	 octree;
 	t_vec		 unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
 	t_vec		 lights; // type: t_light
@@ -230,9 +229,8 @@ bool	 obj_is_inside_aabb(const t_gui* gui, const t_obj* obj, const t_aabb* aabb)
 
 t_octree octree(t_aabb aabb, size_t objects);
 t_octree octree_root(size_t objects);
-t_octree octree_from_objects(t_gui* gui);
+void	 octree_build(t_gui* gui);
 void	 octree_subdivide(const t_gui* gui, t_octree* octree);
-bool	 octree_add_obj(const t_gui* gui, t_octree* octree, t_obj* obj);
 void	 octree_shrink_to_fit(const t_gui* gui, t_octree* octree);
 t_bounce octree_bounce_closest(const t_gui* gui, const t_ray* ray);
 t_bounce octree_bounce_first(const t_gui* gui, const t_ray* ray, const t_vec3 p);

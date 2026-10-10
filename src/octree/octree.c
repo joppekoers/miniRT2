@@ -46,35 +46,15 @@ static size_t octree_max_depth(const t_octree* o)
 	return max_depth + 1;
 }
 
-t_octree octree_from_objects(t_gui* gui)
+// The parser puts all bounded objects in the root, this subdivides them over the tree
+void octree_build(t_gui* gui)
 {
-	t_octree root = octree_root(gui->shapes.length);
-	t_obj*	 obj;
-	size_t	 i = 0;
-	while ((obj = vec_getp(&gui->shapes, i++)))
-	{
-		if (obj_is_bounded(obj))
-			debug_assert(octree_add_obj(gui, &root, obj));
-		else
-			debug_assert(vec_push(&gui->unbounded, obj));
-	}
 	// The root octree node is infinitely large, so subdividing would do nothing without shrinking first
-	octree_shrink_to_fit(gui, &root);
+	octree_shrink_to_fit(gui, &gui->octree);
 
-	octree_subdivide(gui, &root);
+	octree_subdivide(gui, &gui->octree);
 	if (DEBUG)
-		printf("Octree depth: %zu\n", octree_max_depth(&root));
-	return root;
-}
-
-// Returns true if it fits inside the octree's aabb
-bool octree_add_obj(const t_gui* gui, t_octree* octree, t_obj* obj)
-{
-	if (!obj_is_inside_aabb(gui, obj, &octree->aabb))
-		return false;
-	vec_push(&octree->objects, obj);
-
-	return true;
+		printf("Octree depth: %zu\n", octree_max_depth(&gui->octree));
 }
 
 void octree_shrink_to_fit(const t_gui* gui, t_octree* octree)
