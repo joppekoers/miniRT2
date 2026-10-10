@@ -2,24 +2,15 @@
 
 #include "intersect.h"
 #include "vector.h"
-#include "marena.h"
 
 #define OCTREE_MAX_DEPTH 10
-
-void* malloc2(size_t n)
-{
-	static t_marena arena = {.p = 0};
-	if (!arena.p)
-		marena_init(&arena, 20 * 1000 * 1000);
-	return marena_malloc(&arena, n);
-}
 
 t_octree octree(t_aabb aabb, size_t objects)
 {
 	t_octree octree;
 	ft_bzero(&octree, sizeof(t_octree));
 	octree.aabb = aabb;
-	octree.objects = vecm(objects, sizeof(t_obj), &malloc2, NULL);
+	octree.objects = vec(objects, sizeof(t_obj));
 	return octree;
 }
 
@@ -265,10 +256,15 @@ void move_objects_to_children(const t_gui* gui, t_octree* o)
 static void subdivide_recursive(const t_gui* gui, t_octree* o, size_t depth)
 {
 	if (o->objects.length < 100 || depth >= OCTREE_MAX_DEPTH)
+	{
+		vec_shrink_to_fit(&o->objects);
 		return;
+	}
 
 	make_children(o);
 	move_objects_to_children(gui, o);
+	// Most objects moved to the children, so most of the capacity is unused now
+	vec_shrink_to_fit(&o->objects);
 
 	t_octree* child;
 	size_t	  i = 0;

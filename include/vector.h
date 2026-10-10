@@ -66,12 +66,10 @@ typedef struct s_vec
 	size_t	 byte_size;
 	size_t	 element_size;
 	uint8_t* table;
-	void* (*malloc)(size_t);
-	void (*free)(void*);
 } t_vec;
 
 t_vec vec(size_t elements, size_t element_size);
-t_vec vecm(size_t elements, size_t element_size, void* (*allocator)(size_t), void (*free)(void*));
+void  vec_shrink_to_fit(t_vec* vec);
 void* vec_set(t_vec* vec, size_t i, void* value);
 bool  vec_get(const t_vec* vec, void* dest, size_t i);
 void  vec_free(t_vec* vec, void (*del)(void*));

@@ -3,25 +3,18 @@
 #include <stdlib.h>
 #include <stddef.h>
 
-t_vec vecm(size_t elements, size_t element_size, void* (*_malloc)(size_t), void (*_free)(void*))
+t_vec vec(size_t elements, size_t element_size)
 {
 	t_vec vec;
 
 	if (elements == 0)
 		elements = 10;
-	vec.malloc = _malloc;
-	vec.free = _free;
-	vec.table = vec.malloc(elements * element_size);
+	vec.table = malloc(elements * element_size);
 	vec.start_i = 0;
 	vec.length = 0;
 	vec.byte_size = elements * element_size;
 	vec.element_size = element_size;
 	return (vec);
-}
-
-t_vec vec(size_t elements, size_t element_size)
-{
-	return vecm(elements, element_size, &malloc, &free);
 }
 
 static void grow(t_vec* vec, size_t min_byte_size)
@@ -32,12 +25,8 @@ static void grow(t_vec* vec, size_t min_byte_size)
 		new_size *= 2;
 	} while (new_size < min_byte_size);
 
-	void* new = vec->malloc(new_size);
-	ft_memcpy(new, vec->table + (vec->start_i * vec->element_size), vec->length * vec->element_size);
-	if (vec->free)
-		vec->free(vec->table);
-	vec->table = new;
-	vec->start_i = 0;
+	// realloc keeps the old bytes at the same offset, so start_i stays valid
+	vec->table = realloc(vec->table, new_size);
 	vec->byte_size = new_size;
 }
 
@@ -75,8 +64,7 @@ void vec_free(t_vec* vec, void (*del)(void*))
 			i++;
 		}
 	}
-	if (vec->free)
-		vec->free(vec->table);
+	free(vec->table);
 	ft_bzero(vec, sizeof(t_vec));
 }
 
@@ -97,4 +85,21 @@ void vec_pop(t_vec* vec, void (*del)(void*))
 	if (del)
 		del((void*)(table_byte(vec, vec->length - 1)));
 	vec->length -= 1;
+}
+
+// Frees the capacity that is not used, keeps room for 1 element so growing still works
+void vec_shrink_to_fit(t_vec* vec)
+{
+	const size_t byte_size = (vec->length ? vec->length : 1) * vec->element_size;
+	if (byte_size == vec->byte_size)
+		return;
+
+	// realloc keeps the start of the table, so the elements have to be there
+	ft_memmove(vec->table, vec->table + (vec->start_i * vec->element_size), vec->length * vec->element_size);
+	vec->start_i = 0;
+	void* new = realloc(vec->table, byte_size);
+	if (new == NULL)
+		return;
+	vec->table = new;
+	vec->byte_size = byte_size;
 }
