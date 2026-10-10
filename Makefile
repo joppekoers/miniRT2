@@ -152,6 +152,16 @@ flame:
 		-o flame.svg -- ./$(NAME) $(TEST_RENDER) --save
 	@$(OPEN) flame.svg
 
+BENCH_RUNS		= 3
+
+benchmark:
+	@$(MAKE) all > /dev/null
+	@for i in $$(seq $(BENCH_RUNS)); do \
+		./$(NAME) $(TEST_RENDER) --save 2>&1 | grep -ao 'Total *[0-9.]*' | awk '{print $$2}' || exit 1; \
+	done | awk '{ sum += $$1; printf "run %d: %.3fs\n", NR, $$1 } \
+		END { if (NR != $(BENCH_RUNS)) exit 1; printf "average over %d runs: %.3fs\n", NR, sum / NR }'
+	@/bin/rm -f scene.bmp
+
 rt:
 	@$(MAKE) all > /dev/null
 	@find rt/ -name "*.rt" -exec echo {} \; \
@@ -166,4 +176,4 @@ rttest:
 -exec mv scene.bmp {}.bmp \; \
 -exec echo "" \;
 
-.PHONY: all clean fclean re silent eval evalclean rt rtall format debug standard flame rttest
+.PHONY: all clean fclean re silent eval evalclean rt rtall format debug standard flame benchmark rttest
