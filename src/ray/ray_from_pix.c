@@ -54,10 +54,9 @@ t_ray ray_from_pix(double x, double y, const t_gui* gui)
 {
 	t_ray_from_pix n;
 
-	n.fov = tan(gui->camera.fov * 0.5);
 	n.aspect_ratio = (double)gui->x_size / (double)gui->y_size;
-	n.px = (2 * x / gui->x_size - 1) * n.aspect_ratio * n.fov;
-	n.py = (2 * y / (double)gui->y_size - 1) * n.fov;
+	n.px = (2 * x / gui->x_size - 1) * n.aspect_ratio * gui->camera.tan_half_fov;
+	n.py = (2 * y / (double)gui->y_size - 1) * gui->camera.tan_half_fov;
 	n.ray.origin = gui->camera.origin;
 	n.scaled_x = scale(gui->camera.positive_x, n.px);
 	n.scaled_y = scale(gui->camera.negative_y, n.py);

@@ -17,7 +17,6 @@
 
 typedef struct s_ray_from_pix
 {
-	double fov;
 	double aspect_ratio;
 	double px;
 	double py;
