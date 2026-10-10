@@ -34,11 +34,11 @@ t_bounce get_bounce(const t_gui* gui, t_ray ray)
 
 static void merge_lights(t_rgb* l, const t_light* light, t_bounce bounce, const t_gui* gui)
 {
-	double intensity;
+	const double intensity = relative_intensity(bounce.point, bounce.normal, light);
 
-	if (!is_clear_path(bounce, light, gui))
+	// A surface facing away from the light gets nothing from it, so its shadow ray can be skipped
+	if (intensity <= 0 || !is_clear_path(bounce, light, gui))
 		return;
-	intensity = relative_intensity(bounce.point, bounce.normal, light);
 	*l = add_color(*l, light->color, intensity);
 }
 t_rgb debug_overlay(t_ray ray, const t_gui* gui, t_rgb rgb)

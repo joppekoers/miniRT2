@@ -102,6 +102,8 @@ typedef struct s_camera
 	t_vec3 origin;
 	t_vec3 dir;
 	double fov;
+	t_vec3 positive_x;
+	t_vec3 negative_y;
 } t_camera;
 
 typedef struct s_light

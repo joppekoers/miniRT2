@@ -22,8 +22,6 @@ typedef struct s_ray_from_pix
 	double px;
 	double py;
 	t_ray  ray;
-	t_vec3 positive_x;
-	t_vec3 negative_y;
 	t_vec3 scaled_x;
 	t_vec3 scaled_y;
 } t_ray_from_pix;

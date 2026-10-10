@@ -27,6 +27,11 @@ void add_camera(t_gui* gui, char* line)
 	set_dir(&cam.dir, items[2]);
 	cam.fov = strtodbl_clamp(items[3], '\0', 0.0, 180.0);
 	cam.fov = ft_radians(cam.fov);
+	if (cam.dir.x == 0.0 && cam.dir.z == 0.0)
+		cam.positive_x = (t_vec3){1.0, 0.0, 0.0};
+	else
+		cam.positive_x = cross(cam.dir, ((t_vec3){0.0, 1.0, 0.0}));
+	cam.negative_y = cross(cam.dir, cam.positive_x);
 	ft_free_until_null_char(items);
 	if (vec_push(&gui->cameras, &cam) == NULL)
 		exit_e("malloc");
