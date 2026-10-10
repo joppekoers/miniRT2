@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "gui.h"
 #include "intersect.h"
+#include "parse_rt.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdio.h>
@@ -11,7 +12,7 @@
 typedef struct s_obj_file
 {
 	t_vec  vertices; // t_vec3
-	t_vec* shapes; // t_obj
+	t_gui* gui;
 } t_obj_file;
 
 static const char* skip_space(const char* s)
@@ -87,17 +88,17 @@ static const char* read_index(const t_obj_file* file, const char* s, t_vec3* p)
 	return s;
 }
 
-static void push_triangle(t_vec* shapes, t_vec3 p0, t_vec3 p1, t_vec3 p2)
+static void push_triangle(t_gui* gui, t_vec3 p0, t_vec3 p1, t_vec3 p2)
 {
-	t_obj obj;
+	t_obj	   obj;
+	t_triangle tr;
 
-	obj.shape = SHAPE_TRIANGLE;
 	obj.color = OBJ_COLOR;
-	obj.pos.tr.p0 = p0;
-	obj.pos.tr.p1 = p1;
-	obj.pos.tr.p2 = p2;
-	set_edge_normal(&obj.pos.tr);
-	debug_assert(vec_push(shapes, &obj));
+	tr.p0 = p0;
+	tr.p1 = p1;
+	tr.p2 = p2;
+	set_edge_normal(&tr);
+	add_parsed_triangle(gui, &obj, &tr);
 }
 
 // faces with more than 3 vertices are converted to a triangle fan
@@ -115,7 +116,7 @@ static void read_line_face(t_obj_file* file, const char* s)
 	while (*s != '\0')
 	{
 		s = read_index(file, s, &cur);
-		push_triangle(file->shapes, p0, prev, cur);
+		push_triangle(file->gui, p0, prev, cur);
 		prev = cur;
 		s = skip_space(s);
 	}
@@ -166,7 +167,7 @@ void parse_obj_file(t_gui* gui, const char* path)
 	if (fd < 0)
 		exit_e(ft_strjoin("Cannot open ", path));
 	file.vertices = vec(1000, sizeof(t_vec3));
-	file.shapes = &gui->shapes;
+	file.gui = gui;
 	while (ft_get_next_line(fd, &line) > 0)
 	{
 		line_error(line);

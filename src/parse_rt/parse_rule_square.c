@@ -61,27 +61,20 @@ static void square_to_triangles(t_triangle* trs, t_square sq, double half_side)
 	set_triangles(trs, v, edges);
 }
 
-static void add_triangles(t_vec* shapes, t_triangle* trs, t_rgb color)
+static void add_triangles(t_gui* gui, t_triangle* trs, t_rgb color)
 {
-	t_obj  obj;
-	size_t i;
+	t_obj obj;
 
-	i = 0;
-	while (i < 2)
-	{
-		obj.shape = SHAPE_TRIANGLE;
-		obj.color = color;
-		obj.pos.tr = trs[i];
-		if (vec_push(shapes, &obj) == NULL)
-			exit_e("malloc");
-		i++;
-	}
+	obj.shape = SHAPE_TRIANGLE;
+	obj.color = color;
+	add_parsed_triangle(gui, &obj, trs);
+	add_parsed_triangle(gui, &obj, trs + 1);
 }
 
 // A square can be represented by 2 triangles.
 // So we add 2 triangels to the renderer instead 1 triangle
 
-void add_square(t_vec* shapes, char* line)
+void add_square(t_gui* gui, char* line)
 {
 	t_square   sq;
 	t_rgb	   color;
@@ -95,5 +88,5 @@ void add_square(t_vec* shapes, char* line)
 	set_color(&color, items[4]);
 	ft_free_until_null_char(items);
 	square_to_triangles(trs, sq, sq.size * 0.5);
-	add_triangles(shapes, trs, color);
+	add_triangles(gui, trs, color);
 }

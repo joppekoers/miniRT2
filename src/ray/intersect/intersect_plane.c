@@ -14,21 +14,21 @@
 #include "constants.h"
 #include "vector.h"
 
-t_hit hit_plane(t_pos pos, t_ray ray)
+t_hit hit_plane(const t_plane* pl, t_ray ray)
 {
 	double denom;
 	double t;
 	t_vec3 p0l0;
 	t_hit  hit;
 
-	denom = dot(pos.pl.normal, ray.dir);
-	p0l0 = subtract(pos.pl.origin, ray.origin);
-	t = dot(p0l0, pos.pl.normal) / denom;
+	denom = dot(pl->normal, ray.dir);
+	p0l0 = subtract(pl->origin, ray.origin);
+	t = dot(p0l0, pl->normal) / denom;
 	if (t < 0.0)
 		return ((t_hit){false});
 	hit.hit = true;
 	hit.dist = t;
-	hit.normal = correct_normal(pos.pl.normal, ray);
+	hit.normal = correct_normal(pl->normal, ray);
 	hit.point = translate(ray.origin, ray.dir, hit.dist);
 	return (hit);
 }

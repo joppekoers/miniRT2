@@ -50,15 +50,15 @@ static void parse_rt_line(char* line, t_gui* gui)
 	else if (is_rule(line, RULE_RESOLUTION))
 		set_resolution(gui, line);
 	else if (is_rule(line, RULE_SPHERE))
-		add_sphere(&gui->shapes, line);
+		add_sphere(gui, line);
 	else if (is_rule(line, RULE_PLANE))
-		add_plane(&gui->shapes, line);
+		add_plane(gui, line);
 	else if (is_rule(line, RULE_SQUARE))
-		add_square(&gui->shapes, line);
+		add_square(gui, line);
 	else if (is_rule(line, RULE_CYLINDER))
-		add_cylinder(&gui->shapes, line);
+		add_cylinder(gui, line);
 	else if (is_rule(line, RULE_TRIANGLE))
-		add_triangle(&gui->shapes, line);
+		add_triangle(gui, line);
 	else if (is_rule(line, RULE_AMBIENT))
 		set_ambient(&gui->ambient, line);
 	else if (is_rule(line, RULE_CAMERA))

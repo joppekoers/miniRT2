@@ -23,14 +23,16 @@ t_vec3 correct_normal(t_vec3 normal, t_ray ray)
 	return (normal);
 }
 
-t_hit hit_obj(t_shape shape, t_pos pos, t_ray ray)
+t_hit hit_obj(const t_gui* gui, const t_obj* obj, t_ray ray)
 {
-	static t_hit (*hit_shape[SHAPE_LAST])(t_pos, t_ray) = {
-			[SHAPE_CYLINDER] = hit_cylinder,
-			[SHAPE_PLANE] = hit_plane,
-			[SHAPE_SPHERE] = hit_sphere,
-			[SHAPE_TRIANGLE] = hit_triangle,
-	};
-
-	return (hit_shape[shape](pos, ray));
+	const void* pos = get_pos(gui, obj);
+	if (obj->shape == SHAPE_TRIANGLE)
+		return (hit_triangle(pos, ray));
+	if (obj->shape == SHAPE_SPHERE)
+		return (hit_sphere(pos, ray));
+	if (obj->shape == SHAPE_PLANE)
+		return (hit_plane(pos, ray));
+	if (obj->shape == SHAPE_CYLINDER)
+		return (hit_cylinder(pos, ray));
+	exit_e("Shape not supported");
 }

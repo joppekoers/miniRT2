@@ -28,11 +28,12 @@ void   set_point(t_vec3* origin, char* str);
 void   set_dir(t_vec3* dir, char* str);
 void   set_color(t_rgb* color, char* str);
 
-void   add_sphere(t_vec* shapes, char* line);
-void   add_plane(t_vec* shapes, char* line);
-void   add_square(t_vec* shapes, char* line);
-void   add_cylinder(t_vec* shapes, char* line);
-void   add_triangle(t_vec* shapes, char* line);
+void   add_sphere(t_gui* gui, char* line);
+void   add_plane(t_gui* gui, char* line);
+void   add_square(t_gui* gui, char* line);
+void   add_cylinder(t_gui* gui, char* line);
+void   add_triangle(t_gui* gui, char* line);
+void   add_parsed_triangle(t_gui* gui, t_obj* obj, t_triangle* tr);
 
 void   log_shapes(const t_vec* shapes);
 

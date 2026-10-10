@@ -36,7 +36,7 @@ void bounce_nobounce(t_bounce* b)
 t_bounce get_bounce(const t_gui* gui, t_ray ray)
 {
 #ifdef USE_OCTREE
-	return octree_bounce(&gui->octree, &ray);
+	return octree_bounce(gui, &ray);
 #else
 
 	size_t	 i;
@@ -48,7 +48,7 @@ t_bounce get_bounce(const t_gui* gui, t_ray ray)
 	bounce_nobounce(&bounce);
 	while ((obj = vec_getp(&gui->shapes, i)) != NULL)
 	{
-		hit = hit_obj(obj->shape, obj->pos, ray);
+		hit = hit_obj(gui, obj, ray);
 		if (hit.hit && hit.dist < bounce.distance)
 			bounce_assign(&bounce, &hit, obj);
 		i++;

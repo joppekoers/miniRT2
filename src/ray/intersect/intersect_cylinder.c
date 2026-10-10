@@ -87,14 +87,14 @@ int intersect_cylinder(t_ray ray, t_cylinder cylinder, double* t)
 	return (1);
 }
 
-t_hit hit_cylinder(t_pos pos, t_ray ray)
+t_hit hit_cylinder(const t_cylinder* cy, t_ray ray)
 {
 	t_hit hit;
 
-	hit.hit = intersect_cylinder(ray, pos.cy, &hit.dist);
+	hit.hit = intersect_cylinder(ray, *cy, &hit.dist);
 	if (!hit.hit)
 		return ((t_hit){false});
 	hit.point = translate(ray.origin, ray.dir, hit.dist);
-	hit.normal = cylinder_normal(hit.point, ray, pos.cy);
+	hit.normal = cylinder_normal(hit.point, ray, *cy);
 	return (hit);
 }

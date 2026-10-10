@@ -128,9 +128,14 @@ typedef struct s_gui
 {
 	// holds all the objects in the scene
 	t_vec shapes; // type: t_obj
+	t_vec spheres; // type: t_sphere
+	t_vec planes; // type: t_plane
+	t_vec cylinders; // type: t_cylinder
+	t_vec triangles; // type: t_triangle
 
 #ifdef USE_OCTREE
 	t_octree octree;
+	t_vec	 unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
 #endif
 	t_vec		 lights; // type: t_light
 	t_vec		 cameras; // type: t_camera
@@ -180,22 +185,15 @@ typedef struct s_triangle
 #endif
 } t_triangle;
 
-typedef union u_pos
-{
-	t_cylinder cy;
-	t_plane	   pl;
-	t_sphere   sp;
-	t_triangle tr;
-} t_pos;
-
 typedef struct s_obj
 {
 	t_shape shape;
 	t_rgb	color;
-	// The index of the position array;
-	// u32	  pos_i;
-	t_pos pos;
+	// Index into the t_gui position vec that matches shape
+	u32		pos_i;
 } t_obj;
+
+const void* get_pos(const t_gui* gui, const t_obj* obj);
 
 typedef struct s_hit
 {
@@ -223,15 +221,16 @@ double	 aabb_intersects(const t_aabb* aabb, const t_ray* ray);
 t_aabb	 aabb_from_vec3(t_vec3 min, t_vec3 max);
 t_aabb	 aabb_double(double min_x, double min_y, double min_z, double max_x, double max_y, double max_z);
 
-t_aabb	 obj_get_aabb(const t_obj* obj);
-bool	 obj_is_inside_aabb(const t_obj* obj, const t_aabb* aabb);
+bool	 obj_is_bounded(const t_obj* obj);
+t_aabb	 obj_get_aabb(const t_gui* gui, const t_obj* obj);
+bool	 obj_is_inside_aabb(const t_gui* gui, const t_obj* obj, const t_aabb* aabb);
 
 t_octree octree(t_aabb aabb, size_t objects);
 t_octree octree_root(size_t objects);
-t_octree octree_from_objects(const t_vec* objects);
-void	 octree_subdivide(t_octree* octree);
-bool	 octree_add_obj(t_octree* octree, t_obj* obj);
-void	 octree_shrink_to_fit(t_octree* octree);
-t_bounce octree_bounce(const t_octree* octree, const t_ray* ray);
+t_octree octree_from_objects(t_gui* gui);
+void	 octree_subdivide(const t_gui* gui, t_octree* octree);
+bool	 octree_add_obj(const t_gui* gui, t_octree* octree, t_obj* obj);
+void	 octree_shrink_to_fit(const t_gui* gui, t_octree* octree);
+t_bounce octree_bounce(const t_gui* gui, const t_ray* ray);
 
 #endif

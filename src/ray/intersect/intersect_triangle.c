@@ -68,14 +68,14 @@ void set_edge_normal(t_triangle* tr)
 
 // Stolen from: Möller–Trumbore
 
-t_hit hit_triangle(t_pos pos, t_ray ray)
+t_hit hit_triangle(const t_triangle* tr, t_ray ray)
 {
 #ifdef PRE_COMPUTE_TRIANGLE
-	const t_vec3 edge1 = pos.tr.edge1;
-	const t_vec3 edge2 = pos.tr.edge2;
+	const t_vec3 edge1 = tr->edge1;
+	const t_vec3 edge2 = tr->edge2;
 #else
-	const t_vec3 edge1 = subtract(pos.tr.p1, pos.tr.p0);
-	const t_vec3 edge2 = subtract(pos.tr.p2, pos.tr.p0);
+	const t_vec3 edge1 = subtract(tr->p1, tr->p0);
+	const t_vec3 edge2 = subtract(tr->p2, tr->p0);
 #endif
 
 	t_vec3 h = cross(ray.dir, edge2);
@@ -84,7 +84,7 @@ t_hit hit_triangle(t_pos pos, t_ray ray)
 		return ((t_hit){false});
 
 	double f = 1.0 / a;
-	t_vec3 s = subtract(ray.origin, pos.tr.p0);
+	t_vec3 s = subtract(ray.origin, tr->p0);
 	double u = f * dot(s, h);
 	if (u < 0.0 || u > 1.0)
 		return ((t_hit){false});
@@ -103,36 +103,10 @@ t_hit hit_triangle(t_pos pos, t_ray ray)
 	hit.dist = t;
 	hit.point = translate(ray.origin, ray.dir, hit.dist);
 #ifdef PRE_COMPUTE_TRIANGLE
-	const t_vec3 normal = pos.tr.normal;
+	const t_vec3 normal = tr->normal;
 #else
 	const t_vec3 normal = unit(cross(edge1, edge2));
 #endif
 	hit.normal = correct_normal(normal, ray);
 	return (hit);
-}
-
-t_aabb triangle_aabb(const t_triangle* tr)
-{
-	const t_vec3 min = {
-			.x = min3(tr->p0.x, tr->p1.x, tr->p2.x),
-			.y = min3(tr->p0.y, tr->p1.y, tr->p2.y),
-			.z = min3(tr->p0.z, tr->p1.z, tr->p2.z),
-	};
-	const t_vec3 max = {
-			.x = max3(tr->p0.x, tr->p1.x, tr->p2.x),
-			.y = max3(tr->p0.y, tr->p1.y, tr->p2.y),
-			.z = max3(tr->p0.z, tr->p1.z, tr->p2.z),
-	};
-	const t_aabb aabb = {
-			.min = min,
-			.max = max,
-	};
-	return aabb;
-}
-
-bool triangle_is_inside_aabb(const t_triangle* tr, const t_aabb* aabb)
-{
-	return aabb_is_inside(aabb, &tr->p0) && //
-		   aabb_is_inside(aabb, &tr->p1) && //
-		   aabb_is_inside(aabb, &tr->p2);
 }
