@@ -14,7 +14,7 @@ NAME      		= miniRT
 
 CC          	= gcc
 CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3
-# CFLAGS          += -flto # disable if to see more granual flamegraph
+CFLAGS          += -flto # disable if to see more granual flamegraph
 # CFLAGS			= -Wall -Wextra -Wuninitialized -O0 # debug
 
 SRCEXT      	= c
@@ -152,7 +152,7 @@ flame:
 		-o flame.svg -- ./$(NAME) $(TEST_RENDER) --save
 	@$(OPEN) flame.svg
 
-BENCH_RUNS		= 3
+BENCH_RUNS		= 4
 
 ifeq ($(shell uname),Linux)
 TIME_RSS		= /usr/bin/time -v
