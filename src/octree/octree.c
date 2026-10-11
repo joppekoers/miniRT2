@@ -4,6 +4,8 @@
 #include "vector.h"
 
 #define OCTREE_MAX_DEPTH 10
+// An obj that overlaps more children than this stays in the parent, so big objects are not copied everywhere
+#define OCTREE_MAX_COPIES 4
 
 t_octree octree(t_aabb aabb, size_t objects)
 {
@@ -211,25 +213,31 @@ void move_objects_to_children(const t_gui* gui, t_octree* o)
 
 	while (i && (obj = vec_getp(objects, --i)))
 	{
-		size_t _i = 0;
+		const t_aabb aabb = obj_get_aabb(gui, obj);
+		size_t		 copies = 0;
+		size_t		 _i = 0;
+		while ((child = vec_getp(&o->children, _i++)))
+			copies += aabb_overlaps(&aabb, &child->aabb);
+		if (copies > OCTREE_MAX_COPIES)
+			continue;
+
+		// An obj on the border of children goes in all of them, rays hitting it twice give the same distance
+		_i = 0;
 		while ((child = vec_getp(&o->children, _i++)))
 		{
-			if (!obj_is_inside_aabb(gui, obj, &child->aabb))
-				continue;
-
-			vec_push(&child->objects, obj);
-
-			// the current obj is inserted into a child, so it should be removed from the current aabb
-			// we take the last obj that we have and set that at the current index
-			// this last element will always get popped
-			if (i + 1 != objects->length && objects->length)
-			{
-				void* last = vec_getp(objects, objects->length - 1);
-				vec_set(objects, i, last);
-			}
-			vec_pop(objects, NULL);
-			break;
+			if (aabb_overlaps(&aabb, &child->aabb))
+				vec_push(&child->objects, obj);
 		}
+
+		// the current obj is inserted into children, so it should be removed from the current aabb
+		// we take the last obj that we have and set that at the current index
+		// this last element will always get popped
+		if (i + 1 != objects->length && objects->length)
+		{
+			void* last = vec_getp(objects, objects->length - 1);
+			vec_set(objects, i, last);
+		}
+		vec_pop(objects, NULL);
 	}
 }
 

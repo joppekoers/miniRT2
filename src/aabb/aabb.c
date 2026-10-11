@@ -9,6 +9,13 @@ bool aabb_is_inside(const t_aabb* aabb, const t_vec3* p)
 		   (p->z >= aabb->min.z && p->z <= aabb->max.z);
 }
 
+bool aabb_overlaps(const t_aabb* a, const t_aabb* b)
+{
+	return (a->min.x <= b->max.x && a->max.x >= b->min.x) && //
+		   (a->min.y <= b->max.y && a->max.y >= b->min.y) && //
+		   (a->min.z <= b->max.z && a->max.z >= b->min.z);
+}
+
 t_aabb aabb_from_vec3(t_vec3 min, t_vec3 max)
 {
 	return (t_aabb){.min = min, .max = max};
