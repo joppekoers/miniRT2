@@ -20,13 +20,18 @@
 
 // Create a mlx image of the right size to store the rendered scene
 
-static void set_canvas(t_canvas* canvas, t_gui* gui, bool max_size)
+static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 {
-	int screen_x;
-	int screen_y;
+	const double timer = timer_now();
+	gui->mlx = mlx_init();
+	if (gui->mlx == NULL)
+		exit_e("mlx_init() failed");
 
-	if (max_size && MAX_WINDOW_SIZE)
+	t_canvas* canvas = &gui->canvas;
+	if (create_window && MAX_WINDOW_SIZE)
 	{
+		int screen_x;
+		int screen_y;
 		mlx_get_screen_size(gui->mlx, &screen_x, &screen_y);
 		if (screen_x < (int)gui->x_size || screen_y < (int)gui->y_size)
 			printf("Note: decreased resolution to fit screen\n");
@@ -41,6 +46,15 @@ static void set_canvas(t_canvas* canvas, t_gui* gui, bool max_size)
 	canvas->data = mlx_get_data_addr(canvas->mlx_img, &canvas->bpp, &canvas->line_length, &canvas->byte_order);
 	if (canvas->data == NULL)
 		exit_e("Can't create canvas image 2");
+	timer_print("mlx_init", timer);
+}
+
+static void set_canvas_without_mlx(t_gui* gui)
+{
+	gui->canvas.bpp = 8;
+	gui->canvas.line_length = gui->x_size;
+	const unsigned bytes_per_pixel = 3;
+	gui->canvas.data = malloc(gui->x_size * gui->y_size * bytes_per_pixel);
 }
 
 static int on_keypress(int keycode, t_gui* gui)
@@ -60,7 +74,7 @@ static int on_cross(t_gui* gui)
 	return (0);
 }
 
-static void open_window(t_gui* gui)
+void open_window(t_gui* gui)
 {
 	gui->window = mlx_new_window(gui->mlx, (int)gui->x_size, (int)gui->y_size, "miniRT");
 	if (gui->window == NULL)
@@ -72,6 +86,18 @@ static void open_window(t_gui* gui)
 		mlx_hook(gui->window, 17, 1L << 17, on_cross, gui);
 	gui_display_scene(gui);
 	mlx_loop(gui->mlx);
+}
+
+static void parse_3dfile(t_gui* gui, const char* filename)
+{
+	double timer = timer_now();
+	if (str_ends_with(filename, ".rt"))
+		parse_rt(gui, filename);
+	else if (str_ends_with(filename, ".obj"))
+		parse_obj_file(gui, filename);
+	else
+		exit_e("File type not recognised, expect .rt or .obj;");
+	timer_print("Parse file", timer);
 }
 
 void gui_init(t_gui* gui, const char* filename, bool create_window)
@@ -87,26 +113,21 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	gui->cameras = vec(0, sizeof(t_camera));
 	if (DEBUG)
 		printf("%s\n", filename);
-	double timer = timer_now();
-	gui->mlx = mlx_init();
-	if (gui->mlx == NULL)
-		exit_e("mlx_init() failed");
-	timer_print("mlx_init", timer);
-	timer = timer_now();
 
-	if (str_ends_with(filename, ".rt"))
-		parse_rt(gui, filename);
-	else if (str_ends_with(filename, ".obj"))
-		parse_obj_file(gui, filename);
-	else
-		exit_e("File type not recognised, expect .rt or .obj;");
-	timer_print("Parse file", timer);
+	parse_3dfile(gui, filename);
+
 	if (VERBOSE)
 		printf("%-12s %8zu\n", "Objects", gui->octree.objects.length + gui->unbounded.length);
-	timer = timer_now();
+
+	double timer = timer_now();
 	octree_build(gui);
 	timer_print("Build octree", timer);
-	set_canvas(&gui->canvas, gui, create_window);
+
 	if (create_window)
+	{
+		set_canvas_for_mlx(gui, create_window);
 		open_window(gui);
+	}
+	else
+		set_canvas_without_mlx(gui);
 }
