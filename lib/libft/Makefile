@@ -13,7 +13,7 @@
 NAME      		= libft
 
 CC          	= gcc
-CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized
+CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3 -flto
 
 SRCEXT      	= c
 SRCDIR      	= src
