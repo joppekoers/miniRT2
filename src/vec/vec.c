@@ -25,7 +25,6 @@ static void grow(t_vec* vec, size_t min_byte_size)
 		new_size *= 2;
 	} while (new_size < min_byte_size);
 
-	// realloc keeps the old bytes at the same offset, so start_i stays valid
 	vec->table = realloc(vec->table, new_size);
 	vec->byte_size = new_size;
 }

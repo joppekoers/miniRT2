@@ -10,6 +10,7 @@ test/
 scene.*
 .vscode/
 .DS_Store*
+report/
 
 # swift
 *.dylib
