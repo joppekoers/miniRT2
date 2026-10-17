@@ -11,6 +11,7 @@ scene.*
 .vscode/
 .DS_Store*
 report/
+examples
 
 # swift
 *.dylib

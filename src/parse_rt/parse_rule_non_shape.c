@@ -31,7 +31,6 @@ void add_camera(t_gui* gui, char* line)
 	add_parsed_camera(gui, cam);
 }
 
-// cam needs origin, dir and fov (radians), the other fields are derived from those
 void add_parsed_camera(t_gui* gui, t_camera cam)
 {
 	cam.tan_half_fov = tan(cam.fov * 0.5);

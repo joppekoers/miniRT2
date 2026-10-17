@@ -17,14 +17,8 @@
 #include "../settings.h"
 #include "bare_minimum.h"
 #include "vector.h"
-
-#ifdef linux
-#define KEY_ESC 65307
-#define NEXT_CAMERA_KEY 99
-#else
-#define KEY_ESC 53
-#define NEXT_CAMERA_KEY 8
-#endif
+#include "camera.h"
+#include "keys.h"
 
 void   exit_range(long num, long min, long max);
 void   exit_ranged(double num, double min, double max);
@@ -129,21 +123,21 @@ typedef struct s_octree
 
 typedef struct s_gui
 {
-	t_vec		 spheres; // type: t_sphere
-	t_vec		 planes; // type: t_plane
-	t_vec		 cylinders; // type: t_cylinder
-	t_vec		 triangles; // type: t_triangle
+	t_vec spheres; // type: t_sphere
+	t_vec planes; // type: t_plane
+	t_vec cylinders; // type: t_cylinder
+	t_vec triangles; // type: t_triangle
 
 	// the objects in the scene are in either the octree or unbounded
 	t_octree	 octree;
 	t_vec		 unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
 	t_vec		 lights; // type: t_light
+	t_camera	 camera;
 	t_vec		 cameras; // type: t_camera
 	size_t		 camera_i;
 	t_ambient	 ambient;
 	unsigned int x_size;
 	unsigned int y_size;
-	t_camera	 camera;
 	unsigned int row_to_render;
 
 	void*		 mlx;

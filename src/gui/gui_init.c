@@ -33,8 +33,6 @@ static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 		int screen_x;
 		int screen_y;
 		mlx_get_screen_size(gui->mlx, &screen_x, &screen_y);
-		if (screen_x < (int)gui->x_size || screen_y < (int)gui->y_size)
-			printf("Note: decreased resolution to fit screen\n");
 		if (screen_x < (int)gui->x_size)
 			gui->x_size = screen_x;
 		if (screen_y < (int)gui->y_size)
@@ -47,6 +45,8 @@ static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 	if (canvas->data == NULL)
 		exit_e("Can't create canvas image 2");
 	timer_print("mlx_init", timer);
+
+	printf("%-12s %ux%u\n", "resolution", gui->x_size, gui->y_size);
 }
 
 static void set_canvas_without_mlx(t_gui* gui)
@@ -59,10 +59,59 @@ static void set_canvas_without_mlx(t_gui* gui)
 
 static int on_keypress(int keycode, t_gui* gui)
 {
-	if (keycode == KEY_ESC)
-		exit_success(gui);
-	if (keycode == NEXT_CAMERA_KEY)
-		gui_render_next_camera(gui);
+	const double d = 4;
+
+	switch (keycode)
+	{
+		case KEY_ESC:
+			exit_success(gui);
+			break;
+		case KEY_C:
+			gui_render_next_camera(gui);
+			break;
+		case KEY_W:
+			camera_updown(&gui->camera, d);
+			gui_display_scene(gui);
+			break;
+		case KEY_S:
+			camera_updown(&gui->camera, -d);
+			gui_display_scene(gui);
+			break;
+		case KEY_A:
+			camera_leftright(&gui->camera, -d);
+			gui_display_scene(gui);
+			break;
+		case KEY_D:
+			camera_leftright(&gui->camera, d);
+			gui_display_scene(gui);
+			break;
+		case KEY_F:
+			camera_forwardbackward(&gui->camera, d);
+			gui_display_scene(gui);
+			break;
+		case KEY_B:
+			camera_forwardbackward(&gui->camera, -d);
+			gui_display_scene(gui);
+			break;
+		case KEY_UP:
+			camera_pitchyaw(&gui->camera, d, 0);
+			gui_display_scene(gui);
+			break;
+		case KEY_DOWN:
+			camera_pitchyaw(&gui->camera, -d, 0.0);
+			gui_display_scene(gui);
+			break;
+		case KEY_LEFT:
+			camera_pitchyaw(&gui->camera, 0.0, d);
+			gui_display_scene(gui);
+			break;
+		case KEY_RIGHT:
+			camera_pitchyaw(&gui->camera, 0.0, -d);
+			gui_display_scene(gui);
+			break;
+	}
+
+	printf("key: %d\n", keycode);
 	return (0);
 }
 

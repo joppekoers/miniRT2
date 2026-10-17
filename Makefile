@@ -140,7 +140,7 @@ standard:
 	@/bin/rm -f $(NAME)
 	@/bin/rm -f scene.bmp
 	@$(MAKE) all > /dev/null
-	@./$(NAME) $(TEST_RENDER) --save
+	@./$(NAME) $(TEST_RENDER)
 	@open scene.bmp
 
 flame:

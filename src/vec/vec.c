@@ -86,7 +86,6 @@ void vec_pop(t_vec* vec, void (*del)(void*))
 	vec->length -= 1;
 }
 
-// Frees the capacity that is not used, keeps room for 1 element so growing still works
 void vec_shrink_to_fit(t_vec* vec)
 {
 	const size_t byte_size = (vec->length ? vec->length : 1) * vec->element_size;
