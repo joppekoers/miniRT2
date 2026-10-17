@@ -53,9 +53,9 @@ static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 
 static void set_canvas_without_mlx(t_gui* gui)
 {
-	gui->canvas.bpp = 8;
-	gui->canvas.line_length = gui->x_size;
 	const unsigned bytes_per_pixel = 3;
+	gui->canvas.bpp = 8 * bytes_per_pixel;
+	gui->canvas.line_length = gui->x_size * bytes_per_pixel;
 	gui->canvas.data = malloc(gui->x_size * gui->y_size * bytes_per_pixel);
 }
 

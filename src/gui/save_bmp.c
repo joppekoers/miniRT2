@@ -91,7 +91,7 @@ int save_bmp(const t_gui* gui)
 	int		 fd;
 	size_t	 file_size;
 
-	fd = open("scene.bmp", O_WRONLY | O_CREAT, 0777);
+	fd = open("scene.bmp", O_WRONLY | O_CREAT | O_TRUNC, 0777);
 	if (fd < 0)
 		return (-1);
 	file_size = bmp_size(gui->x_size, gui->y_size);

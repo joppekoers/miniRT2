@@ -18,9 +18,9 @@
 
 typedef struct s_thread
 {
-	pthread_t		 id;
-	t_gui*			 gui;
-	pthread_mutex_t* row_to_render_lock;
+	pthread_t	 id;
+	unsigned int rows_to_render;
+	t_gui*		 gui;
 } t_thread;
 
 bool	 is2d(const t_obj* obj);

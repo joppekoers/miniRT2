@@ -19,6 +19,7 @@
 #include "vector.h"
 #include "camera.h"
 #include "keys.h"
+#include <stdatomic.h>
 
 void   exit_range(long num, long min, long max);
 void   exit_ranged(double num, double min, double max);
@@ -142,7 +143,7 @@ typedef struct s_gui
 	t_ambient	 ambient;
 	unsigned int x_size;
 	unsigned int y_size;
-	unsigned int row_to_render;
+	atomic_uint	 row_to_render;
 
 	void*		 mlx;
 	void*		 window;
