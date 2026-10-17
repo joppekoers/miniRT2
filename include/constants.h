@@ -34,6 +34,10 @@ int	   get_number_of_threads();
 double timer_now(void);
 void   timer_print(const char* label, double start);
 
+//
+const char* cache_dir();
+bool		read_camera_pos_file(t_camera* camera);
+
 typedef enum __attribute__((__packed__)) e_shape
 {
 	SHAPE_SPHERE,

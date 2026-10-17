@@ -24,5 +24,4 @@ void gui_render_next_camera(t_gui* gui)
 	if (VERBOSE)
 		printf("Switching to camera %lu\n", gui->camera_i + 1);
 	ft_memcpy(&gui->camera, vec_getp(&gui->cameras, gui->camera_i), sizeof(t_camera));
-	gui_display_scene(gui);
 }

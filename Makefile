@@ -141,7 +141,6 @@ standard:
 	@/bin/rm -f scene.bmp
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TEST_RENDER)
-	@open scene.bmp
 
 flame:
 	@test -x "$(FLAMEGRAPH)" || { echo "flamegraph not found, install with: cargo install flamegraph"; exit 1; }

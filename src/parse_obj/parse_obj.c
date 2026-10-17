@@ -166,7 +166,7 @@ static void read_line(t_obj_file* file, const char* line)
 }
 
 // Camera placement from minirt_rs look_at(): above and in front of the model, looking at its average point
-static void add_look_at_camera(t_gui* gui)
+static t_camera camera_that_looks_at_scene(const t_gui* gui)
 {
 	t_vec3		avg = {0.0, 0.0, 0.0};
 	t_vec3		min = {DBL_MAX, DBL_MAX, DBL_MAX};
@@ -193,7 +193,7 @@ static void add_look_at_camera(t_gui* gui)
 	cam.origin.z = -fabs(avg.z + size / 2.0);
 	cam.dir = unit(subtract(avg, cam.origin));
 	cam.fov = ft_radians(OBJ_FOV);
-	add_parsed_camera(gui, cam);
+	return cam;
 }
 
 // An .obj file only has geometry, so the rest of the scene gets defaults
@@ -203,7 +203,13 @@ static void set_scene_defaults(t_gui* gui)
 		exit_e("No faces found in .obj file");
 	gui->x_size = OBJ_X_SIZE;
 	gui->y_size = OBJ_Y_SIZE;
-	add_look_at_camera(gui);
+
+	t_camera cam;
+	if (!read_camera_pos_file(&cam))
+	{
+		cam = camera_that_looks_at_scene(gui);
+	}
+	add_parsed_camera(gui, cam);
 
 	t_light light = {.origin = gui->camera.origin, .brightness = 0.5, .color = {255, 255, 255}};
 	if (vec_push(&gui->lights, &light) == NULL)

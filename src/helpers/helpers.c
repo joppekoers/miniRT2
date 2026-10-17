@@ -1,5 +1,7 @@
+#include <limits.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "../../lib/libft/include/libft.h"
 
 double min_double(int n, ...)
@@ -50,4 +52,35 @@ bool str_ends_with(const char* s, const char* end)
 	while (end_length && s[--s_length] == end[end_length - 1])
 		end_length--;
 	return end_length == 0;
+}
+
+const char* cache_dir()
+{
+	static char dir[PATH_MAX] = "";
+
+	// if previously loaded return early
+	if (dir[0])
+		return dir;
+
+	const char* home = getenv("HOME");
+	const char* base = "/tmp";
+	const char* suffix = "";
+#ifdef linux
+	const char* xdg = getenv("XDG_CACHE_HOME");
+	if (xdg && *xdg)
+		base = xdg;
+	else if (home && *home)
+	{
+		base = home;
+		suffix = "/.cache";
+	}
+#else
+	if (home && *home)
+	{
+		base = home;
+		suffix = "/Library/Caches";
+	}
+#endif
+	snprintf(dir, sizeof dir, "%s%s/minirt2", base, suffix);
+	return (dir);
 }

@@ -15,8 +15,10 @@
 #include "parse_rt.h"
 #include "../lib/minilibx-linux/mlx.h"
 #include "ray.h"
+#include <limits.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 // Create a mlx image of the right size to store the rendered scene
 
@@ -57,6 +59,49 @@ static void set_canvas_without_mlx(t_gui* gui)
 	gui->canvas.data = malloc(gui->x_size * gui->y_size * bytes_per_pixel);
 }
 
+const u8	 camera_pos_version = 42;
+
+static char* camera_pos_path()
+{
+	static char path[PATH_MAX] = "";
+	if (path[0])
+		return path;
+	snprintf(path, sizeof path, "%s%s", cache_dir(), "/camera_pos");
+	return path;
+}
+
+static void save_camera_pos_file(t_camera* camera)
+{
+	mkdir(cache_dir(), 0755);
+	FILE* f = fopen(camera_pos_path(), "wb");
+	if (!f)
+	{
+		printf("Could not store camera pos\n");
+		return;
+	}
+	assert(fwrite(&camera_pos_version, sizeof camera_pos_version, 1, f) == 1);
+	camera_serialise(camera, f);
+	assert(!fclose(f));
+}
+
+// Returns false when there is no usable file
+bool read_camera_pos_file(t_camera* camera)
+{
+	FILE* f = fopen(camera_pos_path(), "rb");
+	if (!f)
+		return false;
+	u8 camera_pos_version_read;
+	if (fread(&camera_pos_version_read, sizeof camera_pos_version_read, 1, f) != 1 ||
+			camera_pos_version_read != camera_pos_version)
+	{
+		fclose(f);
+		return false;
+	}
+	camera_deserialise(camera, f);
+	assert(!fclose(f));
+	return true;
+}
+
 static int on_keypress(int keycode, t_gui* gui)
 {
 	const double d = 4;
@@ -71,47 +116,39 @@ static int on_keypress(int keycode, t_gui* gui)
 			break;
 		case KEY_W:
 			camera_updown(&gui->camera, d);
-			gui_display_scene(gui);
 			break;
 		case KEY_S:
 			camera_updown(&gui->camera, -d);
-			gui_display_scene(gui);
 			break;
 		case KEY_A:
 			camera_leftright(&gui->camera, -d);
-			gui_display_scene(gui);
 			break;
 		case KEY_D:
 			camera_leftright(&gui->camera, d);
-			gui_display_scene(gui);
 			break;
 		case KEY_F:
 			camera_forwardbackward(&gui->camera, d);
-			gui_display_scene(gui);
 			break;
 		case KEY_B:
 			camera_forwardbackward(&gui->camera, -d);
-			gui_display_scene(gui);
 			break;
 		case KEY_UP:
 			camera_pitchyaw(&gui->camera, d, 0);
-			gui_display_scene(gui);
 			break;
 		case KEY_DOWN:
 			camera_pitchyaw(&gui->camera, -d, 0.0);
-			gui_display_scene(gui);
 			break;
 		case KEY_LEFT:
 			camera_pitchyaw(&gui->camera, 0.0, d);
-			gui_display_scene(gui);
 			break;
 		case KEY_RIGHT:
 			camera_pitchyaw(&gui->camera, 0.0, -d);
-			gui_display_scene(gui);
 			break;
 	}
 
-	printf("key: %d\n", keycode);
+	gui_display_scene(gui);
+	save_camera_pos_file(&gui->camera);
+
 	return (0);
 }
 

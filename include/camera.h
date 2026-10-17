@@ -24,3 +24,5 @@ void camera_pitchyaw(t_camera* self, double pitchd, double yawd);
 void camera_leftright(t_camera* self, double d);
 void camera_updown(t_camera* self, double d);
 void camera_forwardbackward(t_camera* self, double d);
+void camera_serialise(t_camera* self, FILE* f);
+void camera_deserialise(t_camera* self, FILE* f);

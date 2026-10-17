@@ -28,3 +28,13 @@ void camera_forwardbackward(t_camera* self, double d)
 {
 	self->origin = translate(self->origin, self->dir, d);
 }
+
+void camera_serialise(t_camera* self, FILE* f)
+{
+	assert(fwrite(self, sizeof *self, 1, f) == 1);
+}
+
+void camera_deserialise(t_camera* self, FILE* f)
+{
+	assert(fread(self, sizeof *self, 1, f) == 1);
+}
