@@ -48,7 +48,7 @@ static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 		exit_e("Can't create canvas image 2");
 	timer_print("mlx_init", timer);
 
-	printf("%-12s %ux%u\n", "resolution", gui->x_size, gui->y_size);
+	printf("%-12s %zux%zu\n", "resolution", gui->x_size, gui->y_size);
 }
 
 static void set_canvas_without_mlx(t_gui* gui)

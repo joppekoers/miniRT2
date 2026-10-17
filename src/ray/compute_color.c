@@ -44,7 +44,7 @@ static t_rgb average_color(const t_rgb* colors, unsigned int n)
 	return ((t_rgb){r, g, b});
 }
 
-t_rgb compute_color(unsigned int x, unsigned int y, const t_gui* gui)
+t_rgb compute_color(size_t x, size_t y, const t_gui* gui)
 {
 	double aa;
 	double x_off;

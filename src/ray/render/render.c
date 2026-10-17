@@ -17,47 +17,59 @@
 #include <math.h>
 #include <stdio.h>
 
-static void log_progress(unsigned int i, const t_gui* gui)
+static size_t pixel_count(const t_gui* gui)
 {
-	printf("\rProgress %7.3lf%%  ", ((double)i / gui->y_size) * 100.0);
+	return (gui->x_size * gui->y_size);
+}
+
+static void log_progress(size_t rendered_up_to, const t_gui* gui)
+{
+	printf("\rProgress %7.3lf%%  ", ((double)rendered_up_to / pixel_count(gui)) * 100.0);
 	fflush(stdout);
 }
 
-// Claims the next batch of rows [*start, *end) for this thread, false when none are left
+// Claims the next batch of pixel indexes [*start, *end) for this thread, false when none are left.
+// A pixel index runs row by row: index = y * x_size + x.
 
-static bool find_rows(unsigned int* start, unsigned int* end, const t_thread* thread)
+static bool find_pixels(size_t* start, size_t* end, const t_thread* thread)
 {
-	*start = atomic_fetch_add(&thread->gui->row_to_render, thread->rows_to_render);
-	if (*start >= thread->gui->y_size)
+	const size_t total = pixel_count(thread->gui);
+
+	*start = atomic_fetch_add(&thread->gui->pixel_to_render, thread->pixels_to_render);
+	if (*start >= total)
 		return (false);
-	*end = *start + thread->rows_to_render;
-	if (*end > thread->gui->y_size)
-		*end = thread->gui->y_size;
+	*end = *start + thread->pixels_to_render;
+	if (*end > total)
+		*end = total;
 	if (LOG_PROGRESS)
 		log_progress(*end, thread->gui);
 	return (true);
 }
 
-// Render batches of rows until there are none left
+// Render batches of pixels until there are none left
 
 static void* run_thread(void* p)
 {
-	unsigned int x;
-	unsigned int y;
-	unsigned int end;
-	t_thread*	 thread = (t_thread*)p;
+	size_t	  i;
+	size_t	  end;
+	size_t	  x;
+	size_t	  y;
+	t_thread* thread = (t_thread*)p;
 
-	while (find_rows(&y, &end, thread))
+	while (find_pixels(&i, &end, thread))
 	{
-		while (y < end)
+		x = i % thread->gui->x_size;
+		y = i / thread->gui->x_size;
+		while (i < end)
 		{
-			x = 0;
-			while (x < thread->gui->x_size)
+			gui_set_pixel(thread->gui, x, y, compute_color(x, y, thread->gui));
+			x++;
+			if (x == thread->gui->x_size)
 			{
-				gui_set_pixel(thread->gui, x, y, compute_color(x, y, thread->gui));
-				x++;
+				x = 0;
+				y++;
 			}
-			y++;
+			i++;
 		}
 	}
 	return (NULL);
@@ -65,15 +77,13 @@ static void* run_thread(void* p)
 
 static void start_threads(t_thread* threads, t_gui* gui, size_t thread_count)
 {
-	// About 100 batches per thread keeps the atomic counter traffic negligible
-	unsigned int rows_to_render = min2(2, gui->y_size / (unsigned int)(thread_count * 100));
-	size_t		 i;
+	size_t i;
 
 	i = 0;
 	while (i < thread_count)
 	{
 		threads[i].gui = gui;
-		threads[i].rows_to_render = rows_to_render;
+		threads[i].pixels_to_render = max2(1, pixel_count(gui) / 1000); // limits the number of locks to 1000 per render
 		pthread_create(&threads[i].id, NULL, run_thread, (void*)(&threads[i]));
 		i++;
 	}
@@ -86,7 +96,7 @@ void render(t_gui* gui)
 	t_thread	 threads[thread_count];
 	size_t		 i;
 
-	gui->row_to_render = 0;
+	gui->pixel_to_render = 0;
 	start_threads(threads, gui, thread_count);
 	i = 0;
 	while (i < thread_count)

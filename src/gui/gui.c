@@ -23,12 +23,12 @@
 // Mlx has a somewhat weird way to save pixel data
 // @return pointer to 0xBBGGRR in memory
 
-char* gui_get_pixel_data(const t_gui* gui, unsigned x, unsigned y)
+char* gui_get_pixel_data(const t_gui* gui, size_t x, size_t y)
 {
 	return (gui->canvas.data + y * gui->canvas.line_length + x * (gui->canvas.bpp / 8));
 }
 
-void gui_set_pixel(t_gui* gui, unsigned x, unsigned y, t_rgb color)
+void gui_set_pixel(t_gui* gui, size_t x, size_t y, t_rgb color)
 {
 	char* pixel_data;
 
@@ -38,7 +38,7 @@ void gui_set_pixel(t_gui* gui, unsigned x, unsigned y, t_rgb color)
 	pixel_data[2] = (uint8_t)color.r;
 }
 
-t_rgb gui_get_pixel(t_gui* gui, unsigned x, unsigned y)
+t_rgb gui_get_pixel(t_gui* gui, size_t x, size_t y)
 {
 	t_rgb color;
 	char* pixel_data;

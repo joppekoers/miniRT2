@@ -61,9 +61,9 @@ static void header(uint8_t* buf, uint32_t x, uint32_t y, uint32_t file_size)
 
 static void write_image(uint8_t* buf, const t_gui* gui)
 {
-	unsigned long buf_i;
-	unsigned long x;
-	unsigned long y;
+	size_t buf_i;
+	size_t x;
+	size_t y;
 
 	buf_i = HEADER_SIZE;
 	y = gui->y_size;
