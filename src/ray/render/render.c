@@ -97,6 +97,7 @@ void render(t_gui* gui)
 	size_t		 i;
 
 	gui->pixel_to_render = 0;
+	octree_sort_nearest(&gui->octree, &gui->camera.origin);
 	start_threads(threads, gui, thread_count);
 	i = 0;
 	while (i < thread_count)

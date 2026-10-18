@@ -14,7 +14,7 @@ NAME      		= miniRT
 
 CC          	= gcc
 CFLAGS      	= -Wall -Wextra -Werror -Wuninitialized -O3
-CFLAGS          += -flto # disable if to see more granual flamegraph
+CFLAGS          += -flto # the flame target strips this so the flamegraph keeps every function
 # CFLAGS			= -Wall -Wextra -Wuninitialized -O0 # debug
 
 SRCEXT      	= c
@@ -145,7 +145,7 @@ standard:
 flame:
 	@test -x "$(FLAMEGRAPH)" || { echo "flamegraph not found, install with: cargo install flamegraph"; exit 1; }
 	@/bin/rm -f $(NAME)
-	@$(MAKE) all CFLAGS="$(CFLAGS) -g -fno-omit-frame-pointer" > /dev/null
+	@$(MAKE) all CFLAGS="$(filter-out -flto,$(CFLAGS)) -g -fno-omit-frame-pointer" > /dev/null
 	@$(FLAMEGRAPH) $(FLAMEFLAGS) \
 		--post-process "perl -ne '(\$$k, \$$v) = /^(.*) (\d+)\$$/; 1 while \$$k =~ s/(^|;)([^;]+);\2(?=;|\$$)/\$$1\$$2/; \$$h{\$$k} += \$$v; END { print qq(\$$_ \$$h{\$$_}\n) for sort keys %h }'" \
 		-o flame.svg -- ./$(NAME) $(TEST_RENDER) --save

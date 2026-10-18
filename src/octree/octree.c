@@ -59,30 +59,31 @@ void octree_build(t_gui* gui)
 		printf("Octree depth: %zu\n", octree_max_depth(&gui->octree));
 }
 
+static void aabb_grow(t_aabb* box, t_aabb other)
+{
+	box->min = vec3(min2(box->min.x, other.min.x), min2(box->min.y, other.min.y), min2(box->min.z, other.min.z));
+	box->max = vec3(max2(box->max.x, other.max.x), max2(box->max.y, other.max.y), max2(box->max.z, other.max.z));
+}
+
+static t_aabb aabb_clip(t_aabb box, t_aabb limit)
+{
+	return (t_aabb){
+			.min = vec3(max2(box.min.x, limit.min.x), max2(box.min.y, limit.min.y), max2(box.min.z, limit.min.z)),
+			.max = vec3(min2(box.max.x, limit.max.x), min2(box.max.y, limit.max.y), min2(box.max.z, limit.max.z)),
+	};
+}
+
 void octree_shrink_to_fit(const t_gui* gui, t_octree* octree)
 {
-	if (octree->objects.length == 0)
-		return;
-
-	t_vec3 min = {.x = DBL_MAX, .y = DBL_MAX, .z = DBL_MAX};
-	t_vec3 max = {.x = -DBL_MAX, .y = -DBL_MAX, .z = -DBL_MAX};
-
+	t_aabb box = {.min = {DBL_MAX, DBL_MAX, DBL_MAX}, .max = {-DBL_MAX, -DBL_MAX, -DBL_MAX}};
 	size_t i = 0;
 	t_obj* obj;
+
+	if (octree->objects.length == 0)
+		return;
 	while ((obj = vec_getp(&octree->objects, i++)))
-	{
-		const t_aabb aabb_obj = obj_get_aabb(gui, obj);
-
-		min.x = min2(min.x, aabb_obj.min.x);
-		min.y = min2(min.y, aabb_obj.min.y);
-		min.z = min2(min.z, aabb_obj.min.z);
-
-		max.x = max2(max.x, aabb_obj.max.x);
-		max.y = max2(max.y, aabb_obj.max.y);
-		max.z = max2(max.z, aabb_obj.max.z);
-	}
-	octree->aabb.min = min;
-	octree->aabb.max = max;
+		aabb_grow(&box, obj_get_aabb(gui, obj));
+	octree->aabb = box;
 }
 
 // Everything about the ray that stays the same during one traversal
@@ -93,8 +94,6 @@ typedef struct s_traverse
 	t_vec3		 inv_dir;
 	double		 stop_d;
 } t_traverse;
-
-static void octree_bounce_children(const t_traverse* t, const t_octree* octree, t_bounce* bounce);
 
 static void octree_bounce_recurse(const t_traverse* t, const t_octree* octree, t_bounce* bounce)
 {
@@ -114,20 +113,50 @@ static void octree_bounce_recurse(const t_traverse* t, const t_octree* octree, t
 				return;
 		}
 	}
-
-	octree_bounce_children(t, octree, bounce);
-}
-
-static void octree_bounce_children(const t_traverse* t, const t_octree* octree, t_bounce* bounce)
-{
 	t_octree* child;
-	size_t	  i = 0;
+	i = 0;
 	while ((child = vec_getp(&octree->children, i++)))
 	{
 		octree_bounce_recurse(t, child, bounce);
 		if (bounce->obj && t->stop_d > 0)
 			return;
 	}
+}
+
+// Insertion sort, a node has at most 8 children
+static void sort_nearest_recursive(t_octree* o, const t_vec3* from)
+{
+	const size_t n = o->children.length;
+	t_octree*	 child = vec_getp(&o->children, 0);
+	size_t		 i = 1;
+
+	while (i < n)
+	{
+		const t_octree moving = child[i];
+		size_t		   j = i;
+		while (j > 0 && aabb_distance2(&child[j - 1].aabb, from) > aabb_distance2(&moving.aabb, from))
+		{
+			child[j] = child[j - 1];
+			j--;
+		}
+		child[j] = moving;
+		i++;
+	}
+	i = 0;
+	while (i < n)
+		sort_nearest_recursive(&child[i++], from);
+}
+
+void octree_sort_nearest(t_octree* o, const t_vec3* from)
+{
+	static bool	  sorted = false;
+	static t_vec3 sorted_from;
+
+	if (sorted && from->x == sorted_from.x && from->y == sorted_from.y && from->z == sorted_from.z)
+		return;
+	sort_nearest_recursive(o, from);
+	sorted_from = *from;
+	sorted = true;
 }
 
 // stop_d: if > 0 stop at first obj that is closer than that d
@@ -145,7 +174,6 @@ t_bounce octree_bounce(const t_gui* gui, const t_ray* ray, double stop_d)
 	double	 dist;
 	size_t	 i = 0;
 
-	// Hitting these first gives a shorter bounce distance, so more octree nodes get skipped
 	while ((obj = vec_getp(&gui->unbounded, i++)))
 	{
 		if (hit_obj(gui, obj, *ray, &dist) && dist < bounce.distance)
@@ -241,11 +269,53 @@ void move_objects_to_children(const t_gui* gui, t_octree* o)
 	}
 }
 
+// An empty child still costs a box test on every ray that reaches its parent
+void drop_empty_children(t_octree* o)
+{
+	size_t i = 0;
+
+	while (i < o->children.length)
+	{
+		t_octree* child = vec_getp(&o->children, i);
+		if (child->objects.length != 0 || child->children.length != 0)
+		{
+			i++;
+			continue;
+		}
+		vec_free(&child->objects, NULL);
+		vec_free(&child->children, NULL);
+		if (i + 1 != o->children.length)
+			vec_set(&o->children, i, vec_getp(&o->children, o->children.length - 1));
+		vec_pop(&o->children, NULL);
+	}
+	vec_shrink_to_fit(&o->children);
+}
+
+// Shrinks the node to the part of its octant it actually holds, so rays through the empty part skip it.
+// A node only answers for hits inside its octant (a neighbour holds the copy for the rest),
+// so clipping each object to the octant keeps every hit and stops the box growing over its siblings.
+static void fit_aabb(const t_gui* gui, t_octree* o)
+{
+	t_aabb	  box = {.min = {DBL_MAX, DBL_MAX, DBL_MAX}, .max = {-DBL_MAX, -DBL_MAX, -DBL_MAX}};
+	size_t	  i = 0;
+	t_obj*	  obj;
+	t_octree* child;
+
+	while ((obj = vec_getp(&o->objects, i++)))
+		aabb_grow(&box, aabb_clip(obj_get_aabb(gui, obj), o->aabb));
+	i = 0;
+	while ((child = vec_getp(&o->children, i++)))
+		aabb_grow(&box, child->aabb);
+	if (box.min.x <= box.max.x)
+		o->aabb = box;
+}
+
 static void subdivide_recursive(const t_gui* gui, t_octree* o, size_t depth)
 {
-	if (o->objects.length < 100 || depth >= OCTREE_MAX_DEPTH)
+	if (o->objects.length < 16 || depth >= OCTREE_MAX_DEPTH)
 	{
 		vec_shrink_to_fit(&o->objects);
+		fit_aabb(gui, o);
 		return;
 	}
 
@@ -260,6 +330,8 @@ static void subdivide_recursive(const t_gui* gui, t_octree* o, size_t depth)
 	{
 		subdivide_recursive(gui, child, depth + 1);
 	}
+	drop_empty_children(o);
+	fit_aabb(gui, o);
 }
 
 // build the entire tree, subdivide the children all the way down

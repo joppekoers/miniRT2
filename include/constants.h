@@ -220,6 +220,7 @@ void	 bounce_assign(t_bounce* b, double dist, const t_obj* obj);
 bool	 aabb_is_inside(const t_aabb* aabb, const t_vec3* p);
 bool	 aabb_overlaps(const t_aabb* a, const t_aabb* b);
 double	 aabb_intersects(const t_aabb* aabb, const t_vec3* origin, const t_vec3* inv_dir);
+double	 aabb_distance2(const t_aabb* aabb, const t_vec3* p);
 t_aabb	 aabb_from_vec3(t_vec3 min, t_vec3 max);
 t_aabb	 aabb_double(double min_x, double min_y, double min_z, double max_x, double max_y, double max_z);
 
@@ -232,6 +233,7 @@ t_octree octree_root(size_t objects);
 void	 octree_build(t_gui* gui);
 void	 octree_subdivide(const t_gui* gui, t_octree* octree);
 void	 octree_shrink_to_fit(const t_gui* gui, t_octree* octree);
+void	 octree_sort_nearest(t_octree* octree, const t_vec3* from);
 t_bounce octree_bounce_closest(const t_gui* gui, const t_ray* ray);
 t_bounce octree_bounce_first(const t_gui* gui, const t_ray* ray, const t_vec3 p);
 

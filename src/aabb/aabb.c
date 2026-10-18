@@ -16,6 +16,16 @@ bool aabb_overlaps(const t_aabb* a, const t_aabb* b)
 		   (a->min.z <= b->max.z && a->max.z >= b->min.z);
 }
 
+// squared distance from p to the nearest point of the box, 0 when p is inside
+double aabb_distance2(const t_aabb* aabb, const t_vec3* p)
+{
+	const double dx = fmax(fmax(aabb->min.x - p->x, p->x - aabb->max.x), 0.0);
+	const double dy = fmax(fmax(aabb->min.y - p->y, p->y - aabb->max.y), 0.0);
+	const double dz = fmax(fmax(aabb->min.z - p->z, p->z - aabb->max.z), 0.0);
+
+	return dx * dx + dy * dy + dz * dz;
+}
+
 t_aabb aabb_from_vec3(t_vec3 min, t_vec3 max)
 {
 	return (t_aabb){.min = min, .max = max};
@@ -27,9 +37,6 @@ t_aabb aabb_double(double min_x, double min_y, double min_z, double max_x, doubl
 			.max = (t_vec3){.x = max_x, .y = max_y, .z = max_z}};
 }
 
-// 1.0 / -0.0 = -inf keeps t1/t2 ordered by fmin/fmax, and fmin/fmax return
-// the non-NaN operand when 0 * inf occurs (origin exactly on a slab plane),
-// so the test stays conservative instead of poisoning the interval
 static void slab(double bmin, double bmax, double origin, double inv, double* tmin, double* tmax)
 {
 	const double t1 = (bmin - origin) * inv;
@@ -39,8 +46,7 @@ static void slab(double bmin, double bmax, double origin, double inv, double* tm
 	*tmax = fmin(*tmax, fmax(t1, t2));
 }
 
-// distance along the ray to the box entry point, 0 when the origin is
-// inside the box, -1 when the ray misses
+// 0 when the origin is inside the box, -1 when the ray misses
 // inv_dir is 1 / ray.dir per axis, computed once per ray instead of for every box
 double aabb_intersects(const t_aabb* aabb, const t_vec3* origin, const t_vec3* inv_dir)
 {
