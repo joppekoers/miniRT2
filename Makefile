@@ -51,7 +51,7 @@ GNLDIR			= $(LIBDIR)/get_next_line
 GNLSRC			= $(shell find $(GNLDIR)/src -type f -name '*.c')
 GNLHEADERS		= $(shell find $(GNLDIR) -type f -name '*.h')
 
-HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h')
+HEADERS			= $(shell find $(HEADERDIR) -type f -name '*.h') lib/tinyobj/tinyobj_loader_c.h
 SRC				= $(shell find $(SRCDIR) -type f -name '*.c')
 OBJ				= $(foreach src,$(SRC) $(GNLSRC),$(BUILDDIR)/$(notdir $(src:.$(SRCEXT)=.$(OBJEXT))))
 

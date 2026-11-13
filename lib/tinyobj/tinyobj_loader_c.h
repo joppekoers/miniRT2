@@ -178,7 +178,8 @@ extern void tinyobj_materials_free(tinyobj_material_t *materials,
 #define TINYOBJ_REALLOC_SIZED(p,oldsz,newsz) TINYOBJ_REALLOC(p,newsz)
 #endif
 
-#define TINYOBJ_MAX_FACES_PER_F_LINE (16)
+/* Raised from 16 so faces with up to 7 vertices can be triangulated; this sizes a struct allocated per line of the file */
+#define TINYOBJ_MAX_FACES_PER_F_LINE (24)
 #define TINYOBJ_MAX_FILEPATH (8192)
 
 #define IS_SPACE(x) (((x) == ' ') || ((x) == '\t'))
@@ -1241,6 +1242,7 @@ static int parseLine(Command *command, const char *p, size_t p_len,
       tinyobj_vertex_index_t vi = parseRawTriple(&token);
       skip_space_and_cr(&token);
 
+      assert(num_f < TINYOBJ_MAX_FACES_PER_F_LINE);
       f[num_f] = vi;
       num_f++;
     }
