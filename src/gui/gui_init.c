@@ -48,7 +48,7 @@ static void set_canvas_for_mlx(t_gui* gui, bool create_window)
 		exit_e("Can't create canvas image 2");
 	timer_print("mlx_init", timer);
 
-	printf("%-12s %zux%zu\n", "resolution", gui->x_size, gui->y_size);
+	print_stat("resolution", "%zux%zu", gui->x_size, gui->y_size);
 }
 
 static void set_canvas_without_mlx(t_gui* gui)
@@ -59,47 +59,58 @@ static void set_canvas_without_mlx(t_gui* gui)
 	gui->canvas.data = malloc(gui->x_size * gui->y_size * bytes_per_pixel);
 }
 
-const u8	 camera_pos_version = 42;
+const u8	 camera_pos_version = 42 + 1;
 
-static char* camera_pos_path()
+static char* camera_pos_path(const char* render_file)
 {
 	static char path[PATH_MAX] = "";
 	if (path[0])
 		return path;
-	snprintf(path, sizeof path, "%s%s", cache_dir(), "/camera_pos");
+
+	char f[PATH_MAX];
+	snprintf(f, sizeof f, "%s", render_file);
+	strreplace(f, '/', '-');
+	snprintf(path, sizeof path, "%s/camera_pos-%s", cache_dir(), f);
 	return path;
 }
 
-static void save_camera_pos_file(t_camera* camera)
+static u8 get_camera_pos_version(FILE* f)
+{
+	u8 v;
+	ft_fread(&v, sizeof v, f);
+	return v;
+}
+
+static void save_camera_pos_file(t_camera* camera, const char* render_file)
 {
 	mkdir(cache_dir(), 0755);
-	FILE* f = fopen(camera_pos_path(), "wb");
+	FILE* f = fopen(camera_pos_path(render_file), "wb");
 	if (!f)
 	{
 		printf("Could not store camera pos\n");
 		return;
 	}
-	assert(fwrite(&camera_pos_version, sizeof camera_pos_version, 1, f) == 1);
+	ft_fwrite(&camera_pos_version, sizeof camera_pos_version, f);
 	camera_serialise(camera, f);
 	assert(!fclose(f));
 }
 
 // Returns false when there is no usable file
-bool read_camera_pos_file(t_camera* camera)
+bool read_camera_pos_file(t_camera* camera, const char* render_file)
 {
-	FILE* f = fopen(camera_pos_path(), "rb");
+	FILE* f = fopen(camera_pos_path(render_file), "rb");
 	if (!f)
 		return false;
-	u8 camera_pos_version_read;
-	if (fread(&camera_pos_version_read, sizeof camera_pos_version_read, 1, f) != 1 ||
-			camera_pos_version_read != camera_pos_version)
-	{
-		fclose(f);
-		return false;
-	}
+	if (get_camera_pos_version(f) != camera_pos_version)
+		goto close_fail;
 	camera_deserialise(camera, f);
+
 	assert(!fclose(f));
 	return true;
+
+close_fail:
+	assert(!fclose(f));
+	return false;
 }
 
 static int on_keypress(int keycode, t_gui* gui)
@@ -147,7 +158,7 @@ static int on_keypress(int keycode, t_gui* gui)
 	}
 
 	gui_display_scene(gui);
-	save_camera_pos_file(&gui->camera);
+	save_camera_pos_file(&gui->camera, gui->render_file_path);
 
 	return (0);
 }
@@ -189,6 +200,7 @@ static void parse_3dfile(t_gui* gui, const char* filename)
 void gui_init(t_gui* gui, const char* filename, bool create_window)
 {
 	ft_bzero(gui, sizeof(t_gui));
+	gui->render_file_path = filename;
 	gui->spheres = vec(0, sizeof(t_sphere));
 	gui->planes = vec(0, sizeof(t_plane));
 	gui->cylinders = vec(0, sizeof(t_cylinder));
@@ -203,7 +215,7 @@ void gui_init(t_gui* gui, const char* filename, bool create_window)
 	parse_3dfile(gui, filename);
 
 	if (VERBOSE)
-		printf("%-12s %8zu\n", "Objects", gui->octree.objects.length + gui->unbounded.length);
+		print_stat("objects", "%zu", gui->octree.objects.length + gui->unbounded.length);
 
 	double timer = timer_now();
 	octree_build(gui);

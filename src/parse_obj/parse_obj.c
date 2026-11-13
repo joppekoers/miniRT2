@@ -1,10 +1,8 @@
-#include "get_next_line.h"
 #include "constants.h"
 #include "gui.h"
 #include "intersect.h"
 #include "parse_rt.h"
-#include <fcntl.h>
-#include <unistd.h>
+#include "../../lib/tinyobj/tinyobj_loader_c.h"
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
@@ -16,156 +14,92 @@
 #define OBJ_Y_SIZE 1080
 #define OBJ_FOV 80.0
 
-typedef struct s_obj_file
+// tinyobj does not free the buffers it gets from the reader and keeps pointing into the .obj buffer while parsing the .mtl
+typedef struct s_file_buffers
 {
-	t_vec  vertices; // t_vec3
-	t_gui* gui;
-} t_obj_file;
+	uint8_t* obj;
+	uint8_t* mtl;
+} t_file_buffers;
 
-static const char* skip_space(const char* s)
+static uint8_t* read_whole_file(const char* path, size_t* size)
 {
-	while (ft_isspace(*s))
-		s++;
-	return s;
-}
+	FILE*	 f = fopen(path, "rb");
+	uint8_t* buf;
 
-// parses [+-]digits[.digits][eE[+-]digits], returns the char after the number
-static const char* read_double(const char* s, double* num)
-{
-	size_t i;
-	long   exp;
-
-	i = s[0] == '+' || s[0] == '-';
-	if (!ft_isdigit(s[i]))
-		exit_char(s[i], '0');
-	while (ft_isdigit(s[i]))
-		i++;
-	if (s[i] == '.')
-		i++;
-	while (ft_isdigit(s[i]))
-		i++;
-	*num = ft_strtodbl((char*)s);
-	if (s[i] != 'e' && s[i] != 'E')
-		return s + i;
-	s += i + 1;
-	i = s[0] == '+' || s[0] == '-';
-	if (!ft_isdigit(s[i]))
-		exit_char(s[i], '0');
-	while (ft_isdigit(s[i]))
-		i++;
-	exp = ft_strtonum((char*)s);
-	while (exp > 0 && exp--)
-		*num *= 10.0;
-	while (exp < 0 && exp++)
-		*num /= 10.0;
-	return s + i;
-}
-
-// parses [+-]digits, returns the char after the number
-static const char* read_long(const char* s, long* num)
-{
-	size_t i;
-
-	i = s[0] == '+' || s[0] == '-';
-	if (!ft_isdigit(s[i]))
-		exit_char(s[i], '0');
-	while (ft_isdigit(s[i]))
-		i++;
-	*num = ft_strtonum((char*)s);
-	return s + i;
-}
-
-// reads one face element "v", "v/vt", "v/vt/vn" or "v//vn",
-// stores the referenced vertex in *p
-static const char* read_index(const t_obj_file* file, const char* s, t_vec3* p)
-{
-	long raw;
-	long i;
-
-	s = read_long(s, &raw);
-	if (raw < 0)
-		i = raw + (long)file->vertices.length;
-	else
-		i = raw - 1;
-	if (i < 0 || i >= (long)file->vertices.length)
-		exit_range(raw, 1, (long)file->vertices.length);
-	debug_assert(vec_get(&file->vertices, p, (size_t)i));
-	while (*s != '\0' && !ft_isspace(*s))
-		s++;
-	return s;
-}
-
-static void push_triangle(t_gui* gui, t_vec3 p0, t_vec3 p1, t_vec3 p2)
-{
-	t_obj	   obj;
-	t_triangle tr;
-
-	obj.color = OBJ_COLOR;
-	tr.p0 = vec3f(p0);
-	tr.p1 = vec3f(p1);
-	tr.p2 = vec3f(p2);
-	set_edge_normal(&tr);
-	add_parsed_triangle(gui, &obj, &tr);
-}
-
-// faces with more than 3 vertices are converted to a triangle fan
-static void read_line_face(t_obj_file* file, const char* s)
-{
-	t_vec3 p0;
-	t_vec3 prev;
-	t_vec3 cur;
-
-	s = read_index(file, skip_space(s), &p0);
-	s = read_index(file, skip_space(s), &prev);
-	s = skip_space(s);
-	if (*s == '\0')
-		exit_e("A face needs at least 3 vertices");
-	while (*s != '\0')
+	if (f == NULL)
+		return NULL;
+	fseek(f, 0, SEEK_END);
+	*size = ftell(f);
+	fseek(f, 0, SEEK_SET);
+	buf = malloc(*size);
+	if (fread(buf, 1, *size, f) != *size)
 	{
-		s = read_index(file, s, &cur);
-		push_triangle(file->gui, p0, prev, cur);
-		prev = cur;
-		s = skip_space(s);
+		free(buf);
+		buf = NULL;
+	}
+	fclose(f);
+	return buf;
+}
+
+static void read_file_callback(void* ctx, const char* path, int is_mtl, const char* obj_path, char** buf, size_t* len)
+{
+	t_file_buffers* buffers = ctx;
+	uint8_t*		data;
+
+	(void)obj_path;
+	data = read_whole_file(path, len);
+	if (data == NULL)
+	{
+		printf("Warning: cannot open %s: %s%s\n", path, strerror(errno), is_mtl ? ", using default color" : "");
+		*len = 0;
+	}
+	if (is_mtl)
+		buffers->mtl = data;
+	else
+		buffers->obj = data;
+	*buf = (char*)data;
+}
+
+static t_rgb unit_to_rgb(const float c[3])
+{
+	return (t_rgb){
+			round(fminf(fmaxf(c[0], 0.0f), 1.0f) * 255.0),
+			round(fminf(fmaxf(c[1], 0.0f), 1.0f) * 255.0),
+			round(fminf(fmaxf(c[2], 0.0f), 1.0f) * 255.0),
+	};
+}
+
+static t_vec3 vertex_at(const tinyobj_attrib_t* attrib, int i)
+{
+	return vec3(attrib->vertices[3 * i], attrib->vertices[3 * i + 1], attrib->vertices[3 * i + 2]);
+}
+
+// Faces are triangulated by tinyobj, faces with out of range vertex indices are skipped
+static void add_triangles(t_gui* gui, const tinyobj_attrib_t* attrib, const tinyobj_material_t* mats, size_t num_mats)
+{
+	const tinyobj_vertex_index_t* idx;
+	t_obj						  obj;
+	t_triangle					  tr;
+	int							  mat_id;
+
+	for (unsigned f = 0; f < attrib->num_face_num_verts; f++)
+	{
+		idx = attrib->faces + 3 * f;
+		if (idx[0].v_idx < 0 || idx[1].v_idx < 0 || idx[2].v_idx < 0 ||
+				(unsigned)idx[0].v_idx >= attrib->num_vertices || (unsigned)idx[1].v_idx >= attrib->num_vertices ||
+				(unsigned)idx[2].v_idx >= attrib->num_vertices)
+			continue;
+		mat_id = attrib->material_ids[f];
+		obj.color = mat_id >= 0 && (size_t)mat_id < num_mats ? unit_to_rgb(mats[mat_id].diffuse) : OBJ_COLOR;
+		tr.p0 = vec3f(vertex_at(attrib, idx[0].v_idx));
+		tr.p1 = vec3f(vertex_at(attrib, idx[1].v_idx));
+		tr.p2 = vec3f(vertex_at(attrib, idx[2].v_idx));
+		set_edge_normal(&tr);
+		add_parsed_triangle(gui, &obj, &tr);
 	}
 }
 
-static void read_line_vertex(t_obj_file* file, const char* s)
-{
-	t_vec3 vertex;
-
-	s = read_double(skip_space(s), &vertex.x);
-	s = read_double(skip_space(s), &vertex.y);
-	s = read_double(skip_space(s), &vertex.z);
-	if (*skip_space(s) != '\0')
-		exit_e("Expected end of line after 3 vertex coordinates");
-	if (vec_push(&file->vertices, &vertex) == NULL)
-		exit_e("malloc");
-}
-
-static void print_object_name(const char* s)
-{
-	size_t len;
-
-	len = ft_strlen((char*)s);
-	while (len > 0 && ft_isspace(s[len - 1]))
-		len--;
-	printf("Object: %.*s\n", (int)len, s);
-}
-
-static void read_line(t_obj_file* file, const char* line)
-{
-	const char* s;
-
-	s = skip_space(line);
-	if (s[0] == 'v' && ft_isspace(s[1]))
-		read_line_vertex(file, s + 1);
-	else if (s[0] == 'f' && ft_isspace(s[1]))
-		read_line_face(file, s + 1);
-	else if ((s[0] == 'o' || s[0] == 'g') && ft_isspace(s[1]))
-		print_object_name(skip_space(s + 1));
-}
-
-// Camera placement from minirt_rs look_at(): above and in front of the model, looking at its average point
+// Above and in front of the model, looking at its average point
 static t_camera camera_that_looks_at_scene(const t_gui* gui)
 {
 	t_vec3		avg = {0.0, 0.0, 0.0};
@@ -190,7 +124,8 @@ static t_camera camera_that_looks_at_scene(const t_gui* gui)
 	const double size = length(&diagonal);
 
 	cam.origin = add(avg, vec3(size / 5.0, size / 5.0, size / 5.0));
-	cam.origin.z = -fabs(avg.z + size / 2.0);
+	// .obj files follow the OpenGL convention where the viewer is on the +z side
+	cam.origin.z = max.z + size / 2.0;
 	cam.dir = unit(subtract(avg, cam.origin));
 	cam.fov = ft_radians(OBJ_FOV);
 	return cam;
@@ -205,15 +140,14 @@ static void set_scene_defaults(t_gui* gui)
 	gui->y_size = OBJ_Y_SIZE;
 
 	t_camera cam;
-	if (!read_camera_pos_file(&cam))
+	if (!read_camera_pos_file(&cam, gui->render_file_path))
 	{
 		cam = camera_that_looks_at_scene(gui);
 	}
 	add_parsed_camera(gui, cam);
 
 	t_light light = {.origin = gui->camera.origin, .brightness = 0.5, .color = {255, 255, 255}};
-	if (vec_push(&gui->lights, &light) == NULL)
-		exit_e("malloc");
+	vec_push(&gui->lights, &light);
 
 	gui->ambient.brightness = 0.1;
 	gui->ambient.color = (t_rgb){255, 255, 255};
@@ -224,25 +158,27 @@ static void set_scene_defaults(t_gui* gui)
 
 void parse_obj_file(t_gui* gui, const char* path)
 {
-	const int  fd = open(path, O_RDONLY);
-	t_obj_file file;
-	char*	   line;
+	tinyobj_attrib_t	attrib;
+	tinyobj_shape_t*	shapes = NULL;
+	size_t				num_shapes = 0;
+	tinyobj_material_t* tmats = NULL;
+	size_t				num_mats = 0;
+	t_file_buffers		buffers = {NULL, NULL};
+	int					ret;
 
-	if (fd < 0)
+	ret = tinyobj_parse_obj(&attrib, &shapes, &num_shapes, &tmats, &num_mats, path, read_file_callback, &buffers,
+			TINYOBJ_FLAG_TRIANGULATE);
+	free(buffers.obj);
+	free(buffers.mtl);
+	if (ret != TINYOBJ_SUCCESS)
 	{
 		char msg[1024];
-		snprintf(msg, sizeof(msg), "Cannot open %s: %s", path, strerror(errno));
+		snprintf(msg, sizeof(msg), "Cannot parse %s (tinyobj error %d)", path, ret);
 		exit_e(msg);
 	}
-	file.vertices = vec(1000, sizeof(t_vec3));
-	file.gui = gui;
-	while (ft_get_next_line(fd, &line) > 0)
-	{
-		line_error(line);
-		read_line(&file, line);
-		free(line);
-	}
-	line_error("");
-	vec_free(&file.vertices, NULL);
+	add_triangles(gui, &attrib, tmats, num_mats);
+	tinyobj_attrib_free(&attrib);
+	tinyobj_shapes_free(shapes, num_shapes);
+	tinyobj_materials_free(tmats, num_mats);
 	set_scene_defaults(gui);
 }

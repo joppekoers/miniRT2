@@ -22,3 +22,6 @@ lib/minilibx-linux/Makefile.gen
 lib/minilibx-linux/test/Makefile.gen
 Makefile.gen
 /flame.*
+
+# extracted from render/*.zip by `make models`
+/render/*/

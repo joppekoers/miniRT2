@@ -37,7 +37,7 @@ void log_shapes(const t_gui* gui)
 	while (i < SHAPE_LAST)
 	{
 		if (shape_n[i] > 0)
-			printf("   %-10s %u\n", rule_name(i), shape_n[i]);
+			print_stat(rule_name(i), "%u", shape_n[i]);
 		i++;
 	}
 }

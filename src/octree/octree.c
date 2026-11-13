@@ -56,7 +56,7 @@ void octree_build(t_gui* gui)
 
 	octree_subdivide(gui, &gui->octree);
 	if (DEBUG)
-		printf("Octree depth: %zu\n", octree_max_depth(&gui->octree));
+		print_stat("Octree depth", "%zu", octree_max_depth(&gui->octree));
 }
 
 static void aabb_grow(t_aabb* box, t_aabb other)

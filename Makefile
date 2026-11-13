@@ -61,7 +61,7 @@ CLANG_FORMAT	= $(shell command -v clang-format 2>/dev/null \
 STARTGREEN		= @echo "\033[38;2;0;255;0m\c"
 RESETCOLOR		= @echo "\033[0m\c"
 # TEST_RENDER		= render/tree.obj
-TEST_RENDER		= render/xyzrgb_dragon.obj
+TEST_RENDER		= render/xyzrgb_dragon/xyzrgb_dragon.obj
 
 VPATH = $(shell find $(SRCDIR) $(GNLDIR)/src -type d | tr '\n' ':' | sed -E 's/(.*):/\1/')
 
@@ -121,6 +121,15 @@ re:
 $(BUILDDIR)/:
 	mkdir -p $(BUILDDIR)
 
+MODEL_ZIPS		= $(wildcard render/*.zip)
+MODEL_STAMPS	= $(MODEL_ZIPS:render/%.zip=render/%/.unzipped)
+
+models: $(MODEL_STAMPS)
+
+render/%/.unzipped: render/%.zip
+	unzip -o -q $< -d render/$*
+	touch $@
+
 format:
 	@test -n "$(CLANG_FORMAT)" || { echo "clang-format not found"; exit 1; }
 	$(CLANG_FORMAT) --style=file -i $(SRC) $(HEADERS) $(SETTINGS)
@@ -130,19 +139,19 @@ silent:
 
 SANITIZE = -fsanitize=address -g
 
-debug:
+debug: models
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all CFLAGS="$(CFLAGS) $(SANITIZE)" > /dev/null
 	@./$(NAME) $(TEST_RENDER) --save
 	@open scene.bmp
 
-standard:
+standard: models
 	@/bin/rm -f $(NAME)
 	@/bin/rm -f scene.bmp
 	@$(MAKE) all > /dev/null
 	@./$(NAME) $(TEST_RENDER)
 
-flame:
+flame: models
 	@test -x "$(FLAMEGRAPH)" || { echo "flamegraph not found, install with: cargo install flamegraph"; exit 1; }
 	@/bin/rm -f $(NAME)
 	@$(MAKE) all CFLAGS="$(filter-out -flto,$(CFLAGS)) -g -fno-omit-frame-pointer" > /dev/null
@@ -161,7 +170,7 @@ TIME_RSS		= /usr/bin/time -l
 RSS_BYTES		= awk '/maximum resident set size/ { print $$1 }'
 endif
 
-benchmark:
+benchmark: models
 	@$(MAKE) all > /dev/null
 	@for i in $$(seq $(BENCH_RUNS)); do \
 		out=$$($(TIME_RSS) ./$(NAME) $(TEST_RENDER) --save 2>&1) || exit 1; \
@@ -192,4 +201,4 @@ rttest:
 -exec mv scene.bmp {}.bmp \; \
 -exec echo "" \;
 
-.PHONY: all clean fclean re silent eval evalclean rt rtall format debug standard flame benchmark rttest
+.PHONY: models all clean fclean re silent eval evalclean rt rtall format debug standard flame benchmark rttest

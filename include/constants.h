@@ -33,11 +33,16 @@ bool   str_ends_with(const char* s, const char* end);
 int	   get_number_of_threads();
 
 double timer_now(void);
+void   print_stat(const char* label, const char* fmt, ...) __attribute__((format(printf, 2, 3)));
 void   timer_print(const char* label, double start);
+size_t ft_fwrite(const void* ptr, size_t size, FILE* stream);
+size_t ft_fread(void* ptr, size_t size, FILE* stream);
+void   strreplace(char* s, const char search, const char replace);
 
 //
 const char* cache_dir();
-bool		read_camera_pos_file(t_camera* camera);
+
+bool		read_camera_pos_file(t_camera* camera, const char* render_file);
 
 typedef enum __attribute__((__packed__)) e_shape
 {
@@ -134,20 +139,22 @@ typedef struct s_gui
 	t_vec triangles; // type: t_triangle
 
 	// the objects in the scene are in either the octree or unbounded
-	t_octree	octree;
-	t_vec		unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
-	t_vec		lights; // type: t_light
-	t_camera	camera;
-	t_vec		cameras; // type: t_camera
-	size_t		camera_i;
-	t_ambient	ambient;
-	size_t		x_size;
-	size_t		y_size;
+	t_octree	  octree;
+	t_vec		  unbounded; // type: t_obj, shapes without an aabb that are kept outside the octree
+	t_vec		  lights; // type: t_light
+	t_camera	  camera;
+	t_vec		  cameras; // type: t_camera
+	size_t		  camera_i;
+	t_ambient	  ambient;
+	size_t		  x_size;
+	size_t		  y_size;
 	atomic_size_t pixel_to_render;
 
-	void*		mlx;
-	void*		window;
-	t_canvas	canvas;
+	void*		  mlx;
+	void*		  window;
+	t_canvas	  canvas;
+
+	const char*	  render_file_path;
 } t_gui;
 
 typedef struct s_cylinder

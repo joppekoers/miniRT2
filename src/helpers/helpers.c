@@ -2,6 +2,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "bare_minimum.h"
 #include "../../lib/libft/include/libft.h"
 
 double min_double(int n, ...)
@@ -83,4 +84,28 @@ const char* cache_dir()
 #endif
 	snprintf(dir, sizeof dir, "%s%s/minirt2", base, suffix);
 	return (dir);
+}
+
+size_t ft_fwrite(const void* ptr, size_t size, FILE* stream)
+{
+	assert(fwrite(ptr, size, 1, stream) == 1);
+	return size;
+}
+
+size_t ft_fread(void* ptr, size_t size, FILE* stream)
+{
+	assert(fread(ptr, size, 1, stream) == 1);
+	return size;
+}
+
+void strreplace(char* s, const char search, const char replace)
+{
+	if (search == '\0')
+		return;
+	while (*s)
+	{
+		if (*s == search)
+			*s = replace;
+		s++;
+	}
 }
